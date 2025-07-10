@@ -1,0 +1,260 @@
+/*
+ * SwayNC Template - Corrected Color Mapping
+ * Uses a lighter palette for text and highlights, and darker for backgrounds.
+ * Populated by wallpaper.sh
+ */
+
+ 
+.control-center {
+  background: rgba(39, 41, 42, 0.3);
+  border-radius: 10px;
+  border: 2px solid #83858A;
+  margin: 2px;
+  padding: 18px 4px 4px 4px;
+  margin-top: 6px;
+}
+
+.control-center-list, .blank-window {
+  background: transparent;
+}
+
+.control-center-list-placeholder {
+  opacity: 0.8;
+}
+
+
+/*** Widgets ***/
+
+.widget-title {
+  margin: 8px;
+  font-size: 1.5rem;
+  background: transparent;
+}
+.widget-title > button {
+  font-size: initial;
+  color: #D8D5D6;
+  text-shadow: none;
+  background: transparent;
+  border: 1px solid rgba(216, 213, 214, 0.5);
+  box-shadow: none;
+  border-radius: 12px;
+}
+.widget-title > button:hover {
+  background: #1F2A31;
+  
+}
+
+.widget-mpris {
+  font-family: "JetBrains Mono Nerd Font";
+  
+  border: 0px;
+}
+.widget-mpris-player {
+  padding: 14px 14px 10px 14px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 14px;
+  margin-right: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(151, 149, 149, 0.5);
+  box-shadow: none;
+}
+
+
+.widget-mpris-player button {
+    background: rgba(76, 78, 80, 0.5);
+    border: 2px solid rgba(151, 149, 149, 0.5);
+    box-shadow: none;
+    text-shadow: none;
+    color: #D8D5D6;
+}
+
+
+.widget-mpris-player button:hover {
+  background: #1F2A31; /* Hover background */
+  transition: all 0.3s ease-in-out;
+  box-shadow: none;
+  text-shadow: none;
+}
+.widget-mpris-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+.widget-mpris-subtitle {
+  font-size: 1.1rem;
+}
+
+.widget-buttons-grid {
+  font-size: 15px;
+  font-family: "JetBrains Mono Nerd Font";
+  padding-left: 2px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 14;
+  border-radius: 10px;
+  border: 2px solid rgba(151, 149, 149, 0.5);
+  padding-top: 14px;
+  padding-bottom: 14px;
+  background: rgba(76, 78, 80, 0.3);
+  margin: 0 14px; 
+  padding: 2px 2px; 
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  padding: 10px;
+  background: rgba(131, 133, 138, 0.5);
+  color: #D8D5D6;      /* Light button text */
+  border-radius: 12px;
+  margin: 2px;
+  border: 2px solid rgba(151, 149, 149, 0.5);
+  box-shadow: none;     
+  margin-left: 4px; 
+   /* --- THE FIX for Consistency --- */
+  min-width: 120px; 
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: #1F2A31; /* Vibrant accent on hover */
+  transition: all 0.3s ease-in-out;
+}
+
+
+.widget-buttons-grid button image {
+  margin-right: 8px;
+}
+
+.widget-volume,
+.widget-backlight {
+  background-color: transparent;
+  font-size: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border: 0px solid transparent;
+}
+.widget-volume {
+  border-radius: 20px 20px 0px 0px;
+  padding-bottom: 5px;
+}
+.widget-backlight {
+  padding-left: 5px;
+  margin-top: -8px;
+  border-radius: 0px 0px 20px 20px;
+}
+
+.widget-volume trough,
+.widget-backlight trough {
+  border-radius: 20px;
+  background: #27292A; /* Dark slider track */
+  border: 1px solid #27292A;
+}
+.widget-volume trough highlight,
+.widget-backlight trough highlight {
+  padding-top: 1px;
+  background: #83858A; /* Vibrant slider fill */
+  border: 1px solid #83858A;
+  border-radius: 20px;
+}
+.widget-volume trough slider,
+.widget-backlight trough slider {
+  padding: 1px;
+  background: #83858A; /* Vibrant slider handle */
+  border: 1px solid #83858A;
+   box-shadow: none;
+}
+
+
+/* Notifications */
+
+/* --- FIX: Style the "notify-send" group header --- */
+.notification-group-header {
+    background: rgba(76, 78, 80, 0.5);
+    border: 2px solid rgba(151, 149, 149, 0.5);
+    border-radius: 12px;
+    padding: 6px 12px;
+    margin: 0 0 8px -37px; /* Adds space below the header */
+    color: #D8D5D6;
+    font-weight: bold;
+}
+
+/* --- FIX: Hide the broken icon in the group header (GTK3 compatible) --- */
+.notification-group-icon {
+    -gtk-icon-transform: scale(0); /* A more direct GTK way to hide it */
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.notification-row:focus,
+.notification-row:hover {
+  background: rgba(193, 188, 189, 0.5); /* Light accent on hover */
+}
+
+.notification-row .notification-background {
+  padding: 6px 12px;
+}
+
+.notification-row .notification-background .close-button {
+  background: rgba(131, 133, 138, 0.5); /* Vibrant accent for close button */
+  color: #D8D5D6; /* Lightest text */
+  border-radius: 100%;
+  margin: 5px 5px 0 0;
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  box-shadow: none;
+}
+.notification-row .notification-background .close-button:hover {
+  background: rgba(131, 133, 138, 0.5); /* Different accent on hover */
+  transition: background 0.15s ease-in-out;
+}
+
+.notification-row .notification-background .notification {
+  border-radius: 12px;
+  border: 2px solid rgba(151, 149, 149, 0.5); /* Subtle grey border */
+  padding: 0;
+  transition: background 0.15s ease-in-out;
+  background: rgba(76, 78, 80, 0.5); /* Dark notification background */
+}
+
+.notification-row .notification-background .notification .notification-action,
+.notification-row .notification-background .notification .notification-default-action {
+  padding: 4px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  color: #D8D5D6; /* Lightest text */
+  transition: background 0.15s ease-in-out;
+  box-shadow: none;
+}
+
+.notification-row .notification-background .notification .notification-action:hover,
+.notification-row .notification-background .notification .notification-default-action:hover {
+  background: rgba(162, 159, 162, 0.5); /* Lighter accent on hover */
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary,
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time,
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
+  color: #D8D5D6; /* Lightest text */
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-entry {
+  background: rgba(31, 42, 49, 0.5);
+  color: #D8D5D6;
+  caret-color: #D8D5D6;
+  border: 1px solid rgba(151, 149, 149, 0.5);
+  border-radius: 12px;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button {
+  background: rgba(76, 78, 80, 0.5);
+  border: 1px solid rgba(151, 149, 149, 0.5);
+  border-radius: 12px;
+  color: #D8D5D6;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button:disabled {
+  color: rgba(216, 213, 214, 0.5);
+}
+.notification-row .notification-background .notification .notification-default-action .inline-reply .inline-reply-button:hover {
+  background: rgba(162, 159, 162, 0.5);
+}

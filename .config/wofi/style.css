@@ -1,0 +1,59 @@
+/* ~/.config/wofi/style.css */
+
+/* Apply base styles to the main window */
+window {
+    margin: 0px;
+    /* --- Transparency Added --- */
+    background-color: rgba(36, 39, 58, 0.85); /* Base + 85% opacity */
+    border: 2px solid rgba(203, 166, 247, 0.85); /* Mauve + 85% opacity */
+    /* --- --- */
+    border-radius: 10px; /* Rounded corners */
+    font-family: "JetBrains Mono", FontAwesome, sans-serif;
+    font-size: 14px;
+}
+
+/* Style the outer box containing input and results */
+#outer-box {
+    margin: 10px;
+    padding: 10px;
+}
+
+/* Style the input box */
+#input {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background-color: #313244; /* Catppuccin Surface0 (Kept solid for contrast) */
+    color: #cdd6f4; /* Catppuccin Text */
+    border: none;
+    border-radius: 8px;
+}
+
+/* Style the scrollable area */
+#scroll {
+    margin-top: 5px;
+}
+
+/* Style individual entries in the list */
+#entry {
+    padding: 8px 12px;
+    color: #cdd6f4; /* Catppuccin Text */
+    border-radius: 6px;
+    /* Make entry background transparent */
+    background-color: transparent;
+}
+
+/* Style the selected entry */
+#entry:selected {
+    background-color: #cba6f7; /* Catppuccin Mauve (Kept solid for selection highlight) */
+    color: #1e1e2e; /* Catppuccin Mantle (darker contrast) */
+}
+
+/* Style the text within entries */
+#text {
+    color: #cdd6f4; /* Catppuccin Text */
+}
+
+/* Style the text within the selected entry */
+#entry:selected #text {
+    color: #1e1e2e; /* Catppuccin Mantle */
+}

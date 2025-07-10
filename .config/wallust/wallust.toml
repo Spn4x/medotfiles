@@ -1,0 +1,11 @@
+# ~/.config/wallust/wallust.toml
+backend = "kmeans"
+color_space = "lab"
+
+[templates]
+kitty    = { template = 'kitty.tmpl',    target = '~/.config/kitty/colors-wallust.conf', pywal = true }
+dunst    = { template = 'dunst.tmpl',    target = '~/.config/dunst/dunstrc-wallust', pywal = true }
+waybar   = { template = 'waybar.tmpl',   target = '~/.config/waybar/colors-wallust.css', pywal = true } # Assuming the minimal one works
+
+# Generic raw color values for scripting (used by Hyprland and Wofi scripts)
+script_vars = { template = 'raw_colors.txt.tmpl', target = '~/.cache/wallust/scriptable_colors.txt', pywal = true }

@@ -1,0 +1,46 @@
+/* Minimalist Grid - Template */
+/* Placeholders like %%BACKGROUND%% are replaced by wallpaper.sh */
+
+window {
+    margin: auto;
+    min-width: 500px;
+    max-width: 60%;
+    /* USE THE NEW 30% OPACITY BACKGROUND HERE */
+    background-color: %%BACKGROUND_RGBA_30%%; 
+    border: 2px solid %%BORDER_SUBTLE%%;
+    border-radius: 8px;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 14px;
+}
+#input {
+    /* We use a solid color here for legibility */
+    background-color: %%INPUT_BG%%;
+    color: %%FOREGROUND%%;
+    border: 1px solid %%BORDER_SUBTLE%%;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 8px;
+    outline: none;
+}
+#input:focus {
+    border: 2px solid %%ACCENT_COLOR%%;
+    padding: 7px;
+}
+#inner-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-gap: 8px;
+    margin: 0px 8px 8px 8px;
+}
+#entry {
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.1s linear;
+}
+#entry:selected {
+    /* USE THE NEW 80% OPACITY ACCENT FOR THE SELECTION */
+    background-color: %%ACCENT_RGBA_80%%;
+    color: %%FOREGROUND%%; /* Use foreground for better contrast on a transparent bg */
+}
+#text { color: %%FOREGROUND%%; }
+#entry:selected #text { color: %%FOREGROUND%%; }

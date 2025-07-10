@@ -1,0 +1,27 @@
+/* --- Template for the COMPACT Uptime Widget --- */
+@define-color surface #4C4E50;
+@define-color foreground #E9E8E8;
+@define-color accent #83858A;      /* Using color4 for the accent */
+@define-color text-subtle #D8D5D6;
+
+/* Make the top-level window itself completely transparent */
+window {
+    background-color: transparent;
+}
+
+/* Apply all visual styles to our container box */
+.main-container {
+    background-color: alpha(@surface, 0.3);
+    border: 2px solid alpha(@accent, 0.8); /* Use the accent color for the border */
+    border-radius: 8px;
+    padding: 5px 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Style the text label inside */
+.info-label {
+    font-family: "JetBrainsMono Nerd Font";
+    font-weight: normal;
+    color: @text-subtle;
+    opacity: 0.9;
+}

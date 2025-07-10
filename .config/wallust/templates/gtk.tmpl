@@ -1,0 +1,36 @@
+/* Wallust generated GTK colors */
+/* Import this into your ~/.config/gtk-3.0/gtk.css */
+/* For GTK4, it might be ~/.config/gtk-4.0/gtk.css */
+
+/* This is a very basic example. GTK theming is complex.
+   You'd typically define colors that your chosen GTK theme uses,
+   or define common classes. This often requires a theme designed
+   for dynamic coloring (like oomox-generated themes or Materia/Adapta).
+*/
+
+@define-color theme_bg_color {{background}};
+@define-color theme_fg_color {{foreground}};
+@define-color theme_selected_bg_color {{color4}};
+@define-color theme_selected_fg_color {{background}}; /* Or {{color15}} for high contrast */
+@define-color borders {{color8}};
+@define-color accent_color {{color4}};
+@define-color warning_color {{color3}};
+@define-color error_color {{color1}};
+@define-color success_color {{color2}};
+
+/* Example: Affect all widgets (can be too broad) */
+/*
+* {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+    border-color: @borders;
+}
+
+*:selected, *.view:selected, *:selected:focus {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+*/
+
+/* It's often better to target specific elements if you know them,
+   or rely on a theme that respects these @define-color variables. */

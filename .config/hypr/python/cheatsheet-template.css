@@ -1,0 +1,43 @@
+/* Cheatsheet Template for Wallust */
+
+/* --- Wallust Color Placeholders --- */
+@define-color background {{background}};
+@define-color foreground {{foreground}};
+@define-color accent {{color4}};
+@define-color surface {{color0}};
+
+/* --- Main Styles --- */
+window {
+    background-color: transparent;
+}
+
+.main-container {
+    background-color: alpha(@surface, 0.3);
+    border: 2px solid alpha(@accent, 0.8);
+    border-radius: 14px;
+    box-shadow: none;
+}
+
+.category-box {
+    padding: 10px;
+}
+
+.category-header {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-weight: bold;
+    color: @foreground;
+    opacity: 0.9;
+    border-bottom: 1px solid alpha(@accent, 0.3);
+    margin-bottom: 5px;
+}
+
+.key-label {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-weight: bold;
+    color: @accent;
+}
+
+.desc-label {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    color: @foreground;
+}

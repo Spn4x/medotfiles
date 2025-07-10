@@ -1,0 +1,137 @@
+let {
+
+    $workspaces = {
+        type = "workspaces"
+        class = "module module-workspaces"
+        focused_class = "focused"
+        urgent_class = "urgent"
+        all_monitors = true
+        format = "{id}"
+        on_click = "focus"
+    }
+
+    $focused_window = {
+        type = "focused"
+        class = "module module-window-title"
+        show_icon = true
+        show_title = false
+        icon_size = 16
+        truncate.mode = "end"
+        truncate.max_length = 0
+    }
+
+    $launcher = {
+      type = "launcher"
+      class = "module module-launcher"
+      show_names = false
+      show_icons = true
+      show_if = "hyprctl clients | grep -q ." 
+      icon_size = 16
+    }
+
+$sys_all = {
+    type        = "script"
+    class       = "module module-sysinfo"
+    cmd         = "/home/meismeric/.config/ironbar/sysinfo.sh"
+    return_type = "text"
+    interval    = 2000
+    format      = "{}"
+}
+
+$backlight = {
+    type        = "script"
+    class       = "module module-backlight"
+    cmd         = "bash -c 'echo \"󰃠 $(brightnessctl -m | cut -d, -f4)\"'"
+    return_type = "text"
+    interval    = 100
+
+
+    on_scroll_up   = "brightnessctl set +5%"
+    on_scroll_down = "brightnessctl set 5%-"
+}
+
+
+
+    $volume = {
+        type = "volume"
+        class = "module module-volume"
+        format = "{icon} {percentage}%"
+        max_volume = 100
+        icons.volume_high = "󰕾"
+        icons.volume_medium = "󰖀"
+        icons.volume_low = "󰕿"
+        icons.muted = "󰝟"
+        interval = 100
+
+        on_scroll_up   = "volumectl up"
+        on_scroll_down = "volumectl down"
+
+
+    }
+
+   $clock = {
+    type = "clock"
+    class = "module module-clock"
+    format = "%d/%m/%Y %I:%M %p"
+    tooltip_format = "<big>%A, %B %d, %Y</big>\n%H:%M:%S"
+}
+
+$bt_battery = {
+    type        = "script"
+    class       = "module module-bt-battery"
+    cmd         = "/home/meismeric/.config/hypr/scripts/bt-battery.sh"
+    return_type = "text"
+    interval    = 5000
+    format      = "{}"
+    on_click    = "blueman-manager"
+}
+
+    $music_player = {
+        type = "music"
+        class = "module module-music"
+        player_type = "mpris"
+        format = " "
+        icons.play = ""
+        icons.pause = ""
+        format_down = " " 
+        truncate = {
+            mode = "end"
+            max_length = 50
+        }
+    }
+    
+
+    $tray = {
+    type = "tray"
+    class = "module module-tray"
+    icon_size = 15
+    spacing = 3
+    direction = "h"
+    blacklist = [
+        "org/ayatana/NotificationItem/nm_applet"
+        "org/ayatana/NotificationItem/application_indicator"
+    ]
+}
+
+    $left_widgets = [ $workspaces  ]
+    $center_widgets = [ $music_player $backlight ]
+    $right_widgets = [ $clock $sys_all $volume $bt_battery ]
+
+}
+
+
+in {
+    monitors.eDP-1 = {
+        position = "top"
+        height = 28
+        exclusive = false
+        anchor_to_edges = false
+        layer = "top"
+        icon_theme = "Papirus"
+        css_path = "/home/meismeric/.config/ironbar/style.css"
+
+        start = $left_widgets
+        center = $center_widgets
+        end = $right_widgets
+    }
+}

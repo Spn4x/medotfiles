@@ -1,0 +1,685 @@
+/* ~/.config/ironbar/style-template.css */
+/* This is the TEMPLATE file. Wallust colors will be injected here. */
+/* We are using custom names and assigning Wallust colors to them. */
+
+/* --- Custom Name Definitions Mapped to Wallust Placeholders --- */
+@define-color custom-primary {{foreground}};         /* Main text */
+@define-color custom-secondary {{color7}};           /* Sub-text (Wallust's light gray/white) */
+@define-color custom-background {{background}};       /* Main bar background */
+@define-color custom-surface {{color0}};            /* Module background (Wallust's darkest gray/black) */
+@define-color custom-border {{color8}};             /* General border (Wallust's medium gray) */
+@define-color custom-accent {{color4}};             /* Primary accent (Wallust's blue) */
+@define-color custom-highlight {{color1}};            /* Highlight/Error (Wallust's red) */
+
+/* Specific hardcoded colors from your old theme, now mapped to Wallust placeholders */
+@define-color battery-warning-color {{color3}};
+@define-color battery-charging-color {{color6}};
+@define-color backlight-color {{color3}};
+@define-color network-color {{color4}};
+@define-color network-hover-color {{color12}};
+@define-color bluetooth-color {{color6}};
+@define-color bluetooth-hover-color {{color12}};
+/* --- End of Custom Name Definitions --- */
+
+/* Wallust's full palette still defined for flexibility, though not directly used by name below if sticking to custom names */
+@define-color background {{background}};
+@define-color foreground {{foreground}};
+@define-color cursor {{cursor}};
+@define-color color0 {{color0}};
+@define-color color1 {{color1}};
+@define-color color2 {{color2}};
+@define-color color3 {{color3}};
+@define-color color4 {{color4}};
+@define-color color5 {{color5}};
+@define-color color6 {{color6}};
+@define-color color7 {{color7}};
+@define-color color8 {{color8}};
+@define-color color9 {{color9}};
+@define-color color10 {{color10}};
+@define-color color11 {{color11}};
+@define-color color12 {{color12}};
+@define-color color13 {{color13}};
+@define-color color14 {{color14}};
+@define-color color15 {{color15}};
+@define-color transparent rgba(0, 0, 0, 0);
+
+/* --- Styles using your custom color names --- */
+* {
+    font-family: "JetBrainsMono Nerd Font", "Noto Sans Nerd Font", sans-serif;
+    font-size: 10.5pt;
+    font-weight: normal;
+    color: @custom-primary;
+    border: none;
+    border-radius: 0px;
+    box-shadow: none;
+    text-shadow: none;
+    background-image: none;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    transition-property: background-color, color, box-shadow, opacity;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in-out;
+}
+
+window#ironbar {
+    background-color: @transparent;
+}
+
+#bar {
+    background-color: alpha(@custom-background, 0.3);
+    margin: 6px 15px 0px 15px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 2px solid alpha(@custom-accent, 0.8);
+   
+}
+
+.bar-container {
+    background-color: @transparent;
+}
+
+window, .background {
+    background-color: @transparent;
+}
+
+#bar > .left,
+#bar > .center,
+#bar > .right {
+    padding: 0 4px;
+    background-color: #F5E9DB;
+}
+
+.module {
+    padding: 3px 8px;
+    margin: 0 4px;
+    border-radius: 8px;
+    background-color: alpha(@custom-surface, 0.3);
+    font-weight: normal;
+    min-width: 40px;
+}
+
+.module:hover {
+    background-color: alpha(@custom-surface, 0.9);
+    color: @custom-accent;
+    box-shadow: 0 0 5px alpha(@custom-accent, 0.3);
+}
+
+.module-workspaces {
+    background-color: @transparent;
+    padding: 0;
+}
+.module-workspaces button {
+    color: @custom-secondary;
+    background-color: alpha(@custom-surface, 0.3);
+    padding: 4px 9px;
+    margin: 1px 2px;
+    border-radius: 8px;
+    font-size: 10.5pt;
+    font-weight: bold;
+}
+.module-workspaces button:hover {
+    background-color: alpha(@custom-surface, 0.9);
+    color: @custom-highlight;
+    box-shadow: 0 0 5px alpha(@custom-highlight, 0.4);
+}
+.module-workspaces button.focused {
+    background-color: alpha(@custom-accent, 0.85);
+    color: @custom-background;
+    box-shadow: 0 0 6px alpha(@custom-accent, 0.7);
+    box-shadow: none;
+}
+.module-workspaces button.urgent {
+    background-color: @custom-highlight;
+    color: @custom-background;
+    animation: urgent-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes urgent-pulse {
+  0% { box-shadow: 0 0 4px alpha(@custom-highlight, 0.5); }
+  50% { box-shadow: 0 0 10px alpha(@custom-highlight, 0.7); }
+  100% { box-shadow: 0 0 4px alpha(@custom-highlight, 0.5); }
+}
+
+.module-launcher image {
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
+/* This targets the buttons inside the launcher and their icons */
+.module-launcher button,
+.module-launcher button image {
+    /* The fix discovered by the GTK Inspector */
+    -gtk-icon-shadow: none;
+
+    /* Extra resets to prevent future issues from other themes */
+    border: none;
+    box-shadow: none;
+    background-image: none;
+    outline: none;
+}
+
+/* Optional: A clean hover effect */
+.module-launcher button:hover {
+    background-color: alpha(@color8, 0.3);
+    border-radius: 6px;
+}
+
+.module-sysinfo {
+    color: @custom-primary;    
+    font-weight: normal;
+}
+.module-sysinfo:hover {
+    color: @custom-highlight;
+}
+.module-sysinfo label {
+    margin: 0 4px;
+    font-size: 10pt;
+}
+
+.module-battery {
+    color: @custom-primary;
+    padding: 3px 8px;
+    font-weight: normal;
+}
+.module-battery.warning {
+    color: @battery-warning-color;
+    background-color: alpha(@custom-surface, 0.8);
+}
+.module-battery.critical {
+    color: @custom-highlight;
+    background-color: alpha(@custom-surface, 0.9);
+    animation: urgent-pulse 1.2s infinite;
+}
+.module-battery.charging {
+    color: @battery-charging-color;
+}
+.module-battery:hover {
+    color: @custom-highlight;
+}
+
+.module-backlight {
+     color: @custom-primary;
+    padding: 3px 8px;
+    font-weight: normal;
+}
+.module-backlight:hover {
+    color: @custom-highlight;
+    background-color: alpha(@custom-surface, 0.7);
+}
+
+.module-volume {
+    color: @custom-highlight;
+    padding: 3pt 8px;
+    font-weight: normal;
+}
+.module-volume:hover {
+    color: @custom-accent;
+    background-color: alpha(@custom-surface, 0.7);
+}
+
+.module-bt-battery {
+    color: @custom-primary;
+    padding: 3px 8px;
+    font-weight: normal;
+}
+.module-bt-battery:hover {
+    color: @bluetooth-hover-color;
+    background-color: alpha(@custom-surface, 0.7);
+}
+
+.module-network {
+    color: @network-color;
+    padding: 3px 8px;
+    font-weight: normal;
+}
+.module-network:hover {
+    color: @network-hover-color;
+    background-color: alpha(@custom-surface, 0.7);
+}
+
+.module-bluetooth {
+    
+    padding: 3px 8px;
+    font-weight: normal;
+}
+.module-bluetooth:hover {
+    color: @bluetooth-hover-color;
+    background-color: alpha(@custom-surface, 0.7);
+}
+
+.module-clock {
+    font-weight: bold;
+    color: @custom-primary;
+    font-size: 11pt;
+    padding: 3px 9px;
+    background-color: alpha(@custom-surface, 0.3);
+}
+.module-clock:hover {
+    color: @custom-accent;
+    background-color: alpha(@custom-surface, 0.8);
+}
+
+/* Clock Popup Styling */
+.popup-clock {
+    background-color: alpha(@custom-background, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid alpha(@custom-surface, 0.3);
+    box-shadow: none;
+    min-width: 300px;
+}
+
+.popup-clock .calendar-clock {
+    font-family: "JetBrainsMono Nerd Font", "Noto Sans Nerd Font", sans-serif;
+    font-size: 14pt;
+    font-weight: bold;
+    color: @custom-primary;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: alpha(@custom-surface, 0.85);
+    border-radius: 10px;
+    border: 1px solid alpha(@custom-border, 0.4);
+}
+.popup-clock .calendar-clock label {
+    /* No text-align here, relying on GTK's default for label within its parent */
+}
+
+
+/* Calendar widget within the popup */
+.popup-clock .calendar {
+    font-family: "JetBrainsMono Nerd Font", "Noto Sans Nerd Font", sans-serif;
+    font-size: 10.5pt;
+    color: @custom-primary;
+    background-color: @transparent;
+}
+
+/* Calendar header (month/year and navigation buttons) */
+.popup-clock .calendar header {
+    background-color: @transparent;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid alpha(@custom-surface, 0.5);
+}
+.popup-clock .calendar header label {
+    font-weight: bold;
+    color: @custom-accent;
+    font-size: 12pt;
+    /* No text-align here */
+}
+/* Navigation buttons (left/right arrows) */
+.popup-clock .calendar header button {
+    background-color: @transparent;
+    color: @custom-secondary;
+    font-size: 16pt;
+    padding: 0 8px;
+    border-radius: 8px;
+    min-width: 30px;
+    min-height: 30px;
+}
+.popup-clock .calendar header button:hover {
+    background-color: alpha(@custom-surface, 0.7);
+    color: @custom-accent;
+}
+
+
+/* Calendar weekdays (Mo Tu We Th...) */
+.popup-clock .calendar .day-name {
+    color: @custom-secondary;
+    font-size: 10pt;
+    font-weight: normal;
+    padding: 6px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid alpha(@custom-surface, 0.3);
+}
+
+/* Calendar days (numbers) */
+.popup-clock .calendar .day {
+    color: @custom-primary;
+    padding: 7px;
+    border-radius: 8px;
+    margin: 2px;
+    background-color: alpha(@custom-surface, 0.2);
+    /* No text-align here */
+}
+.popup-clock .calendar .day:hover {
+    background-color: alpha(@custom-accent, 0.2);
+    color: @custom-primary;
+}
+
+/* Today's date */
+.popup-clock .calendar .day.current {
+    background-color: @custom-accent;
+    color: @custom-background;
+    font-weight: bold;
+    box-shadow: 0 0 10px alpha(@custom-accent, 0.6);
+    border: 1px solid @custom-accent;
+}
+
+/* Selected date (if any) */
+.popup-clock .calendar .day.selected {
+    background-color: @custom-highlight;
+    color: @custom-background;
+    font-weight: bold;
+    box-shadow: 0 0 10px alpha(@custom-highlight, 0.6);
+    border: 1px solid @custom-highlight;
+}
+
+/* Non-month days (days from prev/next month in current view) */
+.popup-clock .calendar .day.other-month {
+    color: alpha(@custom-primary, 0.3);
+    background-color: @transparent;
+}
+
+/* --- Volume Popup Styling --- */
+.popup-volume {
+    background-color: alpha(@custom-background, 0.3);
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid alpha(@custom-surface, 0.5);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    min-width: 100px;
+    padding-left: 10px;
+    padding-right: 0px; /* As per your last successful adjustment */
+}
+
+.popup-volume .device-box {
+    background-color: @transparent;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid alpha(@custom-surface, 0.3);
+}
+
+/* Device selector (dropdown) */
+.popup-volume .device-box .device-selector {
+    background-color: alpha(@custom-surface, 0.6);
+    color: @custom-primary;
+    border-radius: 4px;
+    padding: 2px 3px;
+    margin-bottom: 3px;
+    border: 1px solid alpha(@custom-border, 0.1);
+    font-size: 8.5pt;
+    min-width: 80px;
+}
+.popup-volume .device-box .device-selector:hover {
+    background-color: alpha(@custom-surface, 0.8);
+}
+.popup-volume .device-box .device-selector label {
+    font-size: 8.5pt;
+}
+
+
+/* Device volume slider (VERTICAL) */
+.popup-volume .device-box .slider {
+    min-height: 70px;
+    min-width: 10px;
+    background-color: @transparent;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+/* Slider Trough (the background track) */
+.popup-volume .device-box .slider trough {
+    background-color: alpha(@custom-primary, 0.1);
+    min-width: 4px;
+    border-radius: 2px;
+}
+
+/* Slider Highlight/Fill (the colored part of the bar) */
+.popup-volume .device-box .slider highlight {
+    background-color: @custom-accent;
+    min-width: 4px;
+    border-radius: 2px;
+}
+
+/* Slider Handle (the movable part) */
+.popup-volume .device-box .slider slider {
+    background-color: @custom-highlight;
+    border-radius: 4px;
+    min-width: 10px;
+    min-height: 10px;
+    border: 1px solid @custom-primary;
+}
+.popup-volume .device-box .slider slider:hover {
+    background-color: @custom-accent;
+}
+
+/* Device mute toggle button */
+.popup-volume .device-box .btn-mute {
+    background-color: alpha(@custom-surface, 0.6);
+    color: @custom-primary;
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin-top: 3px;
+    border: 1px solid alpha(@custom-border, 0.1);
+    font-size: 8pt;
+}
+.popup-volume .device-box .btn-mute:hover {
+    background-color: alpha(@custom-surface, 0.8);
+    color: @custom-accent;
+}
+.popup-volume .device-box .btn-mute.muted {
+    background-color: @custom-highlight;
+    color: @custom-background;
+}
+
+
+/* Application volume controls container */
+.popup-volume .apps-box {
+    margin-top: 10px;
+    padding-top: 3px;
+   
+    border-top: 1px solid alpha(@custom-surface, 0.3);
+}
+
+/* Individual application volume box */
+.popup-volume .apps-box .app-box {
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: alpha(@custom-surface, 0.2);
+    border-radius: 4px;
+    font-size: 8pt;
+    min-width: 200px;
+}
+.popup-volume .apps-box .app-box:last-child {
+    margin-bottom: 0;
+}
+
+/* Application title (name of the stream) */
+.popup-volume .apps-box .app-box .title {
+    font-weight: bold;
+    color: @custom-primary;
+    margin-bottom: 1px;
+}
+
+/* Application volume slider */
+.popup-volume .apps-box .app-box .slider {
+    min-height: unset;
+    background-color: @transparent;
+}
+.popup-volume .apps-box .app-box .slider trough {
+    background-color: alpha(@custom-primary, 0.05);
+    min-height: 2px;
+    border-radius: 1px;
+}
+.popup-volume .apps-box .app-box .slider highlight {
+    background-color: @custom-accent;
+    min-height: 2px;
+    border-radius: 1px;
+}
+.popup-volume .apps-box .app-box .slider slider {
+    background-color: @custom-highlight;
+    border-radius: 3px;
+    min-width: 7px;
+    min-height: 7px;
+    border: 1px solid alpha(@custom-primary, 0.5);
+}
+.popup-volume .apps-box .app-box .slider slider:hover {
+    background-color: @custom-accent;
+}
+
+/* Application mute toggle button */
+.popup-volume .apps-box .app-box .btn-mute {
+    background-color: alpha(@custom-surface, 0.6);
+    color: @custom-primary;
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin-left: 3px;
+    border: 1px solid alpha(@custom-border, 0.1);
+    font-size: 7.5pt;
+}
+.popup-volume .apps-box .app-box .btn-mute:hover {
+    background-color: alpha(@custom-surface, 0.8);
+    color: @custom-accent;
+}
+.popup-volume .apps-box .app-box .btn-mute.muted {
+    background-color: @custom-highlight;
+    color: @custom-background;
+}
+
+
+tooltip.background {
+  background-color: alpha(@custom-background, 0.95);
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid @custom-surface;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+tooltip label {
+  color: @custom-primary;
+  font-size: 9.5pt;
+  font-weight: normal;
+}
+
+/* --- System-wide GTK Menu Styling (e.g., from Tray Icons, NetworkManager Applet, Blueman-applet) --- */
+/* These selectors apply to ANY GtkMenu/GtkMenuItem unless more specific selectors override them. */
+/* They are NOT exclusive to the tray module, but are what is displayed when tray icons trigger menus. */
+menu {
+    background-color: alpha(@custom-background, 0.3);
+    border: 1px solid @custom-border;
+    border-radius: 8px; 
+    box-shadow: none;
+    padding: 5px; 
+    min-width: 200px;
+}
+
+menuitem {
+    background-color: transparent; /* No background by default */
+    color: @custom-primary; /* Default text color */
+    padding: 2px 2px; /* Padding for each menu item */
+    border-radius: 6px; /* Slightly rounded items */
+    margin: 2px 0; /* Space between items */
+}
+
+menuitem:hover {
+    background-color: @custom-accent; /* Highlight background on hover */
+    color: @custom-background; /* Text color on hover */
+}
+
+menuitem:selected { /* For keyboard navigation selection (e.g., arrow keys) */
+    background-color: @custom-highlight; /* Highlight background for selected state */
+    color: @custom-background;
+}
+
+menuitem.separator { /* For menu item separators */
+    background-color: alpha(@custom-surface, 0.6); /* Color of the separator */
+    margin: 5px 0; /* Space around separator */
+    padding: 0; /* No padding */
+}
+
+/* For menu items with checkboxes or radio buttons (e.g., Enable Networking) */
+menuitem.check, menuitem.radio {
+    /* Specific styling for these if needed, e.g., icons, text color */
+}
+menuitem.check:checked, menuitem.radio:checked {
+    color: @custom-accent; /* Or make the checkmark visible */
+    /* background-color: alpha(@custom-accent, 0.2); if you want a subtle background */
+}
+
+/* For menu items that have sub-menus (e.g., VPN Connections) */
+menuitem.submenu {
+    /* Style the arrow or ensure consistent padding */
+}
+
+/* Specific styling for labels within menu items if generic menuitem doesn't suffice */
+menuitem label {
+    font-size: 10pt; /* Adjust font size for menu text */
+    font-weight: normal;
+    color: inherit; /* Inherit color from parent menuitem */
+}
+
+
+/* --- Music Popup Styling --- */
+.popup-music {
+    background-color: alpha(@custom-background, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid @custom-border;
+    box-shadow: none;
+    min-width: 250px;
+}
+
+/* Album art */
+.popup-music .album-art {
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Text labels for title, album, artist */
+.popup-music .label {
+    color: @custom-primary;
+}
+.popup-music .title .label {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: @custom-accent;
+}
+.popup-music .artist .label,
+.popup-music .album .label {
+    color: @custom-secondary;
+}
+
+/* Playback controls container */
+.popup-music .controls {
+ padding-left: 60px;
+    margin: 10px 0;
+}
+.popup-music .controls button {
+    color: @custom-primary;
+    background-color: transparent;
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 8px;
+}
+.popup-music .controls button:hover {
+    background-color: alpha(@custom-surface, 0.7);
+    color: @custom-accent;
+}
+
+/* --- NEW: Hide the volume slider --- */
+/* Hide the volume slider inside the music popup */
+.popup-music .volume {
+    /* In GTK CSS, 'display: none;' is not always effective. */
+    /* This combination of properties is the correct way to fully collapse a widget. */
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+}
+/* --- END NEW --- */
+
+/* Song progress bar (slider) */
+.popup-music .progress .slider trough {
+    background-color: alpha(@custom-surface, 0.5);
+    border-radius: 4px;
+    min-height: 8px;
+}
+.popup-music .progress .slider highlight {
+    background-color: @custom-accent;
+    border-radius: 4px;
+}
+.popup-music .progress .label {
+    color: @custom-secondary;
+    font-size: 0.9em;
+    margin-top: 5px;
+}

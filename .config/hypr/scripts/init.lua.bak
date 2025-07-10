@@ -1,0 +1,160 @@
+-- init.lua
+
+-- === 1. HIDE NEOVIM’S DEFAULT INTRO BANNER ===
+vim.opt.shortmess:append("I")
+
+-- === 2. LEADER KEYS ===
+-- Set `<` as your new leader
+vim.g.mapleader      = " "
+vim.g.maplocalleader = " "
+
+-- === 3. OPTIONS ===
+vim.opt.clipboard      = "unnamedplus"
+vim.opt.number         = true
+vim.opt.relativenumber = true
+vim.opt.mouse          = "a"
+vim.opt.termguicolors  = true
+vim.opt.splitbelow     = true
+vim.opt.splitright     = true
+
+-- === 4. KEYMAPS ===
+local map = vim.keymap.set
+local opts = { noremap = true, silent = true }
+
+-- Save & Quit
+map("n", "<leader>s", ":w<CR>", opts)
+map("i", "<leader>s", "<Esc>:w<CR>i", opts)
+map("n", "<leader>q", ":q<CR>", opts)
+
+-- Undo / Redo (overrides default U and Z behavior)
+map("n", "U", "<C-r>", opts)  -- U to redo
+map("n", "Z", "u", opts)      -- Z to undo
+-- If you still want ZZ to save+quit, uncomment this line:
+-- map("n", "ZZ", ":wq<CR>", opts)
+
+-- Select All
+map("n", "<leader>a", "ggVG", opts)
+
+-- Copy / Paste / Cut
+map({ "n", "v" }, "<leader>c", "+y", opts)
+map("v", "<leader>x", "+d", opts)
+map("n", "<leader>v", "+p", opts)
+map("i", "<leader>v", '<Esc>"+pa', opts)
+
+-- NvimTree toggle
+map("n", "<leader>e", ":NvimTreeToggle<CR>", opts)
+
+-- === 5. TERMINAL SPLITS AT SIZE 10 ===
+-- Now <leader> + Arrow opens a terminal of size 10 without shrinking the original window.
+
+-- <leader><Up>:    open a 10‑line terminal ABOVE the current window
+map("n", "<leader><Up>",    ":split | resize 10 | terminal<CR>",                opts)
+-- <leader><Down>:  open a 10‑line terminal BELOW the current window
+map("n", "<leader><Down>",  ":belowright split | resize 10 | terminal<CR>",      opts)
+-- <leader><Left>:  open a 10‑column terminal to the LEFT of the current window
+map("n", "<leader><Left>",  ":leftabove vsplit | vertical resize 10 | terminal<CR>",  opts)
+-- <leader><Right>: open a 10‑column terminal to the RIGHT of the current window
+map("n", "<leader><Right>", ":rightbelow vsplit | vertical resize 10 | terminal<CR>", opts)
+
+-- === 6. RESIZE CURRENT SPLIT BY 5 USING <leader> + “-” + arrow ===
+-- (These apply to the existing window; press `<leader>-<Arrow>` to resize ±5.)
+map("n", "<leader>-<Up>",    ":resize +5<CR>",            opts)
+map("n", "<leader>-<Down>",  ":resize -5<CR>",            opts)
+map("n", "<leader>-<Left>",  ":vertical resize +5<CR>",   opts)
+map("n", "<leader>-<Right>", ":vertical resize -5<CR>",   opts)
+
+-- === 7. PLUGIN BOOTSTRAP FOR lazy.nvim ===
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- === 8. PLUGIN INSTALLATION VIA lazy.nvim ===
+require("lazy").setup({
+  -- File tree
+  { "nvim-tree/nvim-tree.lua", dependencies = { "nvim-tree/nvim-web-devicons" } },
+
+  -- Theme
+  { "folke/tokyonight.nvim", lazy = false, priority = 1000 },
+
+  -- Statusline
+  { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" } },
+
+  -- Treesitter for enhanced syntax highlighting
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+
+  -- Telescope (fuzzy finder)
+  { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+
+  -- === alpha-nvim DASHBOARD ===
+  {
+    "goolord/alpha-nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      local alpha     = require("alpha")
+      local dashboard = require("alpha.themes.dashboard")
+
+      -- ASCII header (customize as you like)
+      dashboard.section.header.val = {
+ 
+    [[ ██████╗ ███████╗████████╗ █████╗ ███╗   ███╗██╗██╗  ██╗ ]],
+    [[ ██╔══██╗██╔════╝╚══██╔══╝██╔══██╗████╗ ████║██║╚██╗██╔╝ ]],
+    [[ ██████╔╝█████╗     ██║   ███████║██╔████╔██║██║ ╚███╔╝  ]],
+    [[ ██╔══██╗██╔══╝     ██║   ██╔══██║██║╚██╔╝██║██║ ██╔██╗  ]],
+    [[ ██████╔╝███████╗   ██║   ██║  ██║██║ ╚═╝ ██║██║██╔╝ ██╗ ]],
+    [[ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═╝ ]],
+    [[                                                         ]],
+      }
+      -- Buttons (change labels / commands as needed)
+      dashboard.section.buttons.val = {
+        dashboard.button("e", "  New file",             ":ene <BAR> startinsert <CR>"),
+        dashboard.button("f", "  Find file",            ":Telescope find_files<CR>"),
+        dashboard.button("r", "  Recent files",         ":Telescope oldfiles<CR>"),
+        dashboard.button("q", "  Quit NVIM",            ":qa<CR>"),
+      }
+
+      -- Footer text
+      dashboard.section.footer.val = { "Have a productive day, Yudi!" }
+
+      alpha.setup(dashboard.opts)
+    end,
+  },
+
+  -- (Add any other plugins here as needed)
+})
+
+-- === 9. PLUGIN CONFIGURATIONS ===
+require("nvim-tree").setup()
+require("lualine").setup()
+require("telescope").setup()
+require("nvim-treesitter.configs").setup({
+  highlight = { enable = true },
+})
+
+-- === WALLUST THEME INTEGRATION ===
+local wallust_path = vim.fn.stdpath("config") .. "/lua/wallust.lua"
+if vim.fn.filereadable(wallust_path) == 1 then
+  vim.g.wallust_transparent_bg = true
+  local ok, wallust = pcall(require, "wallust")
+  if ok then
+    wallust.setup()
+  end
+end
+
+-- === 12 TRANSPARENCY SETTINGS ===
+vim.cmd [[
+  highlight Normal           guibg=NONE ctermbg=NONE
+  highlight NormalNC         guibg=NONE ctermbg=NONE
+  highlight EndOfBuffer      guibg=NONE ctermbg=NONE
+  highlight LineNr           guibg=NONE ctermbg=NONE
+  highlight SignColumn       guibg=NONE ctermbg=NONE
+  highlight NvimTreeNormal   guibg=NONE ctermbg=NONE
+  highlight NvimTreeNormalNC guibg=NONE ctermbg=NONE
+]]

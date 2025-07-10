@@ -1,0 +1,13 @@
+# ~/.config/wofi/config
+
+# Allow images (for drun mode later if you use it)
+allow_images=true
+image_sizes=32
+drun-display-generic=true
+# Allow pango markup for text formatting
+allow_markup=true
+
+# Default location/size if not overridden by command line flags
+location=top
+width=600
+height=400

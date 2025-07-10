@@ -1,0 +1,30 @@
+/* Wofi - Wallust Generated CSS */
+@define-color wofi_background {background};
+@define-color wofi_foreground {foreground};
+@define-color wofi_accent {color4};
+@define-color wofi_input_bg {color0};
+@define-color wofi_border_subtle {color8};
+
+window {
+    background-color: @wofi_background;
+    border: 2px solid @wofi_accent;
+    border-radius: 8px;
+}
+#input {
+    background-color: @wofi_input_bg;
+    color: @wofi_foreground;
+    border: 1px solid @wofi_border_subtle;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 8px;
+}
+#input:focus {
+    border-color: @wofi_accent;
+}
+#text {
+    color: @wofi_foreground;
+}
+#entry:selected {
+    background-color: @wofi_accent;
+    color: @wofi_background; /* Or use a bright foreground if accent is dark */
+}

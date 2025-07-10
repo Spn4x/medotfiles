@@ -1,0 +1,50 @@
+/* ~/.config/wallust/templates/waybar.tmpl */
+/* This file is processed by Wallust and becomes colors-wallust.css */
+
+/* --- Wallust Variables for Waybar's @define-color --- */
+@define-color wallust_background      {background};
+@define-color wallust_foreground      {foreground};
+@define-color wallust_cursor          {cursor}; /* Might not be used by Waybar directly, but good to have */
+
+@define-color wallust_color0          {color0};  /* Black */
+@define-color wallust_color1          {color1};  /* Red */
+@define-color wallust_color2          {color2};  /* Green */
+@define-color wallust_color3          {color3};  /* Yellow */
+@define-color wallust_color4          {color4};  /* Blue */
+@define-color wallust_color5          {color5};  /* Magenta */
+@define-color wallust_color6          {color6};  /* Cyan */
+@define-color wallust_color7          {color7};  /* White */
+
+@define-color wallust_color8          {color8};  /* Bright Black (Gray) */
+@define-color wallust_color9          {color9};  /* Bright Red */
+@define-color wallust_color10         {color10}; /* Bright Green */
+@define-color wallust_color11         {color11}; /* Bright Yellow */
+@define-color wallust_color12         {color12}; /* Bright Blue */
+@define-color wallust_color13         {color13}; /* Bright Magenta */
+@define-color wallust_color14         {color14}; /* Bright Cyan */
+@define-color wallust_color15         {color15}; /* Bright White */
+
+/* --- You can also define some semantic colors based on Wallust's palette --- */
+/* These are examples; choose colors that make sense for your theme. */
+/* Use these in your main style.css for consistency. */
+
+@define-color accent          @wallust_color4;  /* Using Wallust's blue as accent */
+@define-color urgent          @wallust_color1;  /* Using Wallust's red for urgent */
+@define-color warning         @wallust_color3;  /* Using Wallust's yellow for warning */
+@define-color success         @wallust_color2;  /* Using Wallust's green for success */
+
+@define-color bar_bg            @wallust_background; /* Main bar background */
+@define-color bar_fg            @wallust_foreground; /* Main bar foreground */
+@define-color module_bg         transparent;        /* Default module background */
+@define-color module_fg         @wallust_foreground; /* Default module foreground */
+
+@define-color inactive_ws_fg    @wallust_color7;  /* Color for inactive workspace text */
+@define-color active_ws_fg      @wallust_foreground; /* Color for active workspace text */
+@define-color active_ws_bg      @wallust_color4;  /* Background for active workspace button */
+@define-color hover_bg          @wallust_color8;  /* Background for hovered elements */
+@define-color hover_fg          @wallust_background; /* Foreground for hovered elements */
+
+/* Tooltip specific colors */
+@define-color tooltip_bg        @wallust_color0;
+@define-color tooltip_fg        @wallust_foreground;
+@define-color tooltip_border    @wallust_color8;
