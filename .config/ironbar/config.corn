@@ -20,21 +20,12 @@ let {
         truncate.max_length = 0
     }
 
-    $launcher = {
-      type = "launcher"
-      class = "module module-launcher"
-      show_names = false
-      show_icons = true
-      show_if = "hyprctl clients | grep -q ." 
-      icon_size = 16
-    }
-
 $sys_all = {
     type        = "script"
     class       = "module module-sysinfo"
     cmd         = "/home/meismeric/.config/ironbar/sysinfo.sh"
     return_type = "text"
-    interval    = 2000
+    interval    = 4000
     format      = "{}"
 }
 
@@ -43,31 +34,35 @@ $backlight = {
     class       = "module module-backlight"
     cmd         = "bash -c 'echo \"󰃠 $(brightnessctl -m | cut -d, -f4)\"'"
     return_type = "text"
-    interval    = 100
+    interval    = 1000
 
 
     on_scroll_up   = "brightnessctl set +5%"
     on_scroll_down = "brightnessctl set 5%-"
 }
 
+    $dnd = {
+    type        = "script"
+    class       = "module module-dnd"
+    cmd         = "bash -c 'if [ $(swaync-client --get-dnd) = true ]; then echo \"󰂛 Zen\"; else echo \"󰂚 Alert\"; fi'"
+    return_type = "text"
+    interval    = 1000
+    on_scroll_up   = "swaync-client --toggle-dnd"
+    on_scroll_down = "swaync-client --toggle-panel"
+}
 
 
-    $volume = {
-        type = "volume"
-        class = "module module-volume"
-        format = "{icon} {percentage}%"
-        max_volume = 100
-        icons.volume_high = "󰕾"
-        icons.volume_medium = "󰖀"
-        icons.volume_low = "󰕿"
-        icons.muted = "󰝟"
-        interval = 100
 
-        on_scroll_up   = "volumectl up"
-        on_scroll_down = "volumectl down"
+   $volume = {
+    type = "script"
+    class = "module"
+    cmd = "~/scripts/volume.sh"
+    return_type = "text"
+    interval = 1000
+    on_scroll_up = "volumectl up"
+    on_scroll_down = "volumectl down"
+}
 
-
-    }
 
    $clock = {
     type = "clock"
@@ -79,11 +74,13 @@ $backlight = {
 $bt_battery = {
     type        = "script"
     class       = "module module-bt-battery"
-    cmd         = "/home/meismeric/.config/hypr/scripts/bt-battery.sh"
+    cmd         = "~/.config/hypr/scripts/bt-battery.sh"
     return_type = "text"
     interval    = 5000
     format      = "{}"
     on_click    = "blueman-manager"
+    on_scroll_down = "~/scripts/audio.sh next"
+    on_scroll_up = "~/scripts/audio.sh prev"
 }
 
     $music_player = {
@@ -114,8 +111,8 @@ $bt_battery = {
 }
 
     $left_widgets = [ $workspaces  ]
-    $center_widgets = [ $music_player $backlight ]
-    $right_widgets = [ $clock $sys_all $volume $bt_battery ]
+    $center_widgets = [ $clock $sys_all  ]
+    $right_widgets = [ $backlight $volume $bt_battery $dnd ]
 
 }
 

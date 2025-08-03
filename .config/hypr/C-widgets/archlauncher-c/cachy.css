@@ -1,0 +1,92 @@
+/*
+ *  Image Previewer Style
+ *  Theme based on the "Wallust Cheatsheet Template" aesthetic
+ */
+
+/* --- Color Palette (from Wallust Cheatsheet Template) --- */
+@define-color background #302E2B; /* The deep, dark base */
+@define-color foreground #DDDED6; /* The warm, primary text color */
+@define-color accent #70704C;     /* The strong, vibrant accent for highlights */
+@define-color surface #55524F;    /* The muted, dark color for backgrounds/surfaces */
+
+
+/* The main application window.
+   Styled to match the target's .main-container for a cohesive "glassmorphism" look. */
+#main-window {
+    background-color: alpha(@surface, 0.3);
+    border: 2px solid alpha(@accent, 0.8);
+    border-radius: 16px;
+    box-shadow: none;
+    /* This padding creates a nice inner margin from the border */
+    padding: 6px;
+}
+
+/* The scrolled area containing the items */
+.scrolled-window {
+    /* Remove the default ugly outline when focused */
+    outline: none;
+}
+
+/* The main horizontal box that holds all the previews.
+   Useful for adding padding inside the window. */
+#main-hbox {
+    padding: 10px 15px;
+}
+
+/* The individual preview item (EventBox) */
+.preview-item {
+    padding: 10px;
+    border: 2px solid transparent; /* Transparent border to prevent layout shift on selection */
+    border-radius: 12px;
+    background-color: transparent;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* State when the mouse is hovering over an item.
+   Use a slightly more visible version of the surface color for a subtle hover. */
+.preview-item:hover {
+    background-color: alpha(@surface, 0.4);
+}
+
+/* State for the currently selected/focused item. This is where the accent shines. */
+.preview-item.selected, .preview-item:focus {
+    background-color: @surface;
+    border-color: @accent;
+    outline: none;
+    background-color: alpha(@surface, 0.3); /* remove focus ring since we have a strong border */
+}
+
+/* The image widget itself */
+.preview-image {
+    border-radius: 8px; /* Give the image itself rounded corners */
+    /* A subtle shadow adds depth and makes the image pop from the background */
+    padding: 12px;
+}
+
+/* The filename label below the image */
+.filename-label {
+    color: @foreground;
+    font-family: "JetBrainsMono Nerd Font", "monospace";
+    font-size: 11pt;
+    font-weight: bold;
+    margin-bottom: 6px; /* Bolded for better contrast and style match */
+}
+
+/* Styling for scrollbars, using the accent color for a consistent theme */
+scrollbar {
+    min-width: 10px;
+    min-height: 10px;
+    border-radius: 5px;
+}
+
+scrollbar slider {
+    background-color: @accent;
+    border-radius: 5px;
+    min-width: 10px;
+    min-height: 10px;
+}
+
+/* A subtle effect for when the scrollbar is being dragged */
+scrollbar slider:hover {
+    background-color: alpha(@accent, 0.8);
+}

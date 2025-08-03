@@ -1,0 +1,14 @@
+[
+  {
+    "class" : "kitty",
+    "exec" : "kitty"
+  },
+  {
+    "class" : "brave-browser",
+    "exec" : "/opt/brave-bin/brave --enable-features=UseOzonePlatform,WebUIDarkMode --ozone-platform=wayland --password-store=basic --no-first-run --disable-background-networking --no-default-browser-check --force-dark-mode --gtk"
+  },
+  {
+    "class" : "code",
+    "exec" : "/opt/visual-studio-code/code"
+  }
+]

@@ -1,0 +1,108 @@
+/*
+================================================================================
+  One CSS To Rule Them All - Comprehensive Theme for Hypr-Sidebar
+================================================================================
+  This is a TEMPLATE file. Colors are replaced by wallpaper.sh.
+*/
+
+/* --- Color Palette & Font (Placeholders) --- */
+@define-color background %%BACKGROUND%%;
+@define-color foreground %%FOREGROUND%%;
+@define-color accent     %%ACCENT%%;
+@define-color surface    %%SURFACE%%;
+@define-color warning    %%WARNING%%;
+
+@define-color-font-main "JetBrainsMono Nerd Font";
+
+
+/*
+================================================================================
+  1. Global Resets & Top-Level Containers
+================================================================================
+*/
+
+/* Main window (main.c), pop-out panels (popout_panels.c), and dialogs */
+window, popover, dialog {
+    font-family: @define-color-font-main, monospace;
+    background-color: alpha(@surface, 0.3);
+    color: @foreground;
+    border: 2px solid alpha(@accent, 0.9);
+    border-radius: 14px;
+    box-shadow: none; /* Explicitly removed as requested */
+    margin-left: 6px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-top: -18px;
+}
+
+.main-content-box {
+  padding: 2px; 
+  margin: 5px;  
+}
+
+.main-content-box.floating-style {
+  padding: 2px; 
+  margin: 5px; 
+}
+
+/* The stack widget that holds the dock and control center (main.c) */
+stack {
+    background-color: transparent;
+}
+
+
+/*
+================================================================================
+  2. General Purpose Widgets (Buttons, Labels, etc.)
+================================================================================
+*/
+
+button { background-image: none; background-color: transparent; border: none; border-radius: 8px; transition: background-color 0.2s ease-in-out; padding: 4px; box-shadow: none; }
+button:hover { background-color: alpha(@accent, 0.9); }
+button:active { background-color: alpha(@accent, 0.6); }
+button image { color: @foreground; }
+button label { font-weight: bold; color: @foreground; }
+label { background-color: transparent; color: @foreground; font-weight: bold; }
+separator { background-color: alpha(@accent, 0.3); min-height: 2px; border-radius: 1px; margin: 5px 0; }
+scrollbar { min-width: 8px; }
+scrollbar trough { background-color: transparent; }
+scrollbar slider { background-color: alpha(@accent, 0.5); border-radius: 4px; border: 1px solid alpha(@accent, 0.7); }
+
+/*
+================================================================================
+  3. App Dock Specific Styles (app_dock.c)
+================================================================================
+*/
+.running-app, .running-app image { color: @accent; font-weight: bold; }
+.running-app { background-color: alpha(@accent, 0.3); }
+popover.background { padding: 8px; background-color: @surface; }
+
+/*
+================================================================================
+  4. Control Center & Popout Panel Widgets (popout_panels.c)
+================================================================================
+*/
+scale trough { background-color: alpha(@background, 0.7); min-height: 10px; border-radius: 5px; border: 1px solid alpha(@accent, 0.3); box-shadow: none; }
+scale highlight { background-color: @accent; border-radius: 5px; }
+scale slider { background-color: transparent; border: none; }
+switch { transition: all 200ms ease-out; }
+switch slider { background-color: @surface; border: 1px solid alpha(@warning, 0.8); border-radius: 99px; }
+switch:checked slider { background-color: @accent; border-color: alpha(@foreground, 0.5); }
+dropdown { padding: 4px; background-color: alpha(@background, 0.5); border: 1px solid alpha(@accent, 0.3); border-radius: 8px; }
+dropdown:hover { background-color: alpha(@background, 0.8); }
+label b { color: @accent; }
+adw-toast { background-color: @surface; color: @foreground; border-radius: 8px; padding: 12px; border: 1px solid @accent; box-shadow: none; }
+
+/*
+================================================================================
+  5. Password Dialog Styles (popout_panels.c)
+================================================================================
+*/
+dialog.background { background-color: @background; }
+dialog.background .title { font-weight: bold; color: @foreground; }
+entry.password { background-color: alpha(@surface, 0.8); border: 1px solid @accent; border-radius: 6px; color: @foreground; padding: 6px; box-shadow: none; }
+entry.password:focus { border-color: @foreground; }
+.suggested-action { background-color: @accent; }
+.suggested-action:hover { background-color: alpha(@accent, 0.8); }
+.destructive-action { background-color: @warning; }

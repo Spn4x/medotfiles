@@ -27,6 +27,7 @@ class UptimeWidget(Gtk.Window):
         GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.NONE)
         GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
         GtkLayerShell.set_margin(self, GtkLayerShell.Edge.BOTTOM, MARGIN_FROM_BOTTOM)
+        GtkLayerShell.set_exclusive_zone(self, -1)
         
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_visual(self.get_screen().get_rgba_visual())

@@ -1,0 +1,27 @@
+/* --- Custom Style for Hydrate Widget --- */
+@define-color surface #484C4D;
+@define-color foreground #D4E0C0;
+@define-color accent #3C6335;
+@define-color text-subtle #BACA9C;
+
+/* Make the top-level window itself completely transparent */
+window {
+    background-color: transparent;
+}
+
+/* Apply all visual styles to our container box */
+.main-container {
+    background-color: alpha(@surface, 0.3);
+    border: 2px solid alpha(@accent, 0.8);
+    border-radius: 8px;
+    padding: 5px 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Style the text label inside */
+.info-label {
+    font-family: "JetBrainsMono Nerd Font";
+    font-weight: normal;
+    color: @text-subtle;
+    opacity: 0.9;
+}

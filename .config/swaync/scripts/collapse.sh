@@ -25,7 +25,7 @@ cat > "$CONFIG_FILE" << EOF
   	
     "notification-2fa-action": true,
   	"notification-inline-replies": true,
-    "notification-window-width": 300,
+    "notification-window-width": 700,
     "notification-icon-size": 50,
     "notification-body-image-height":  140,
     "notification-body-image-width": 180,

@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+
+import sys
+import time
+import struct
+
+EV_SYN = 0x00
+EV_KEY = 0x01
+KEY_W = 0x11c  # KEY_W
+
+SYN_REPORT = 0
+
+# 24-byte input_event struct: timeval (2 longs), type, code, value
+EVENT_SIZE = struct.calcsize('llHHI')
+
+holding_w = False
+sent_double = False
+
+def write_event(sec, usec, ev_type, code, value):
+    event = struct.pack('llHHI', sec, usec, ev_type, code, value)
+    sys.stdout.buffer.write(event)
+    sys.stdout.buffer.flush()
+
+def emit_key(code, value):
+    t = time.time()
+    sec = int(t)
+    usec = int((t - sec) * 1_000_000)
+    write_event(sec, usec, EV_KEY, code, value)
+    write_event(sec, usec, EV_SYN, SYN_REPORT, 0)
+
+def main():
+    global holding_w, sent_double
+
+    while True:
+        data = sys.stdin.buffer.read(EVENT_SIZE)
+        if not data:
+            break
+
+        tv_sec, tv_usec, ev_type, code, value = struct.unpack('llHHI', data)
+
+        if ev_type == EV_KEY and code == KEY_W:
+            if value == 1 and not holding_w:
+                holding_w = True
+                if not sent_double:
+                    emit_key(KEY_W, 1)
+                    emit_key(KEY_W, 0)
+                    time.sleep(0.02)
+                    emit_key(KEY_W, 1)
+                    emit_key(KEY_W, 0)
+                    sent_double = True
+            elif value == 0:
+                holding_w = False
+                sent_double = False
+                # forward the release normally
+                sys.stdout.buffer.write(data)
+                sys.stdout.buffer.flush()
+        else:
+            # Pass through any other event
+            sys.stdout.buffer.write(data)
+            sys.stdout.buffer.flush()
+
+if __name__ == "__main__":
+    main()

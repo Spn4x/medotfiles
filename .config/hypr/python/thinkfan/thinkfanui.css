@@ -1,0 +1,86 @@
+@define-color bg_color #0d0c0c;
+@define-color fg_color #e0e0e0;
+@define-color accent_color #00aaff; /* A vibrant cyan/blue */
+@define-color accent_hover #33bbff; /* Lighter accent for hover states */
+@define-color accent_dark #006699;
+@define-color res_bar_color #66cc99; /* A calm green for resources */
+@define-color overlay_bg alpha(@bg_color, 0.80);
+
+window, box, separator, frame, button, grid, scrolledwindow, viewport, progressbar, overlay {
+    background: transparent;
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.main-container {
+    background-color: @overlay_bg;
+    border: 1px solid alpha(@accent_color, 0.5);
+    border-radius: 18px;
+    color: @fg_color;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    box-shadow: 0 10px 30px alpha(black, 0.3);
+    padding: 25px;
+}
+separator {
+    background-color: alpha(@accent_color, 0.3);
+}
+
+.category-header {
+    font-size: 13pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.key-label { font-size: 10pt; font-weight: bold; color: alpha(@fg_color, 0.7); }
+.desc-label { font-size: 9pt; opacity: 0.6; }
+.info-value { font-size: 28pt; font-weight: bold; color: @accent_color; }
+
+button { border-radius: 8px; padding: 10px 16px; transition: all 0.15s ease-in-out; }
+button:hover { background-color: alpha(@accent_color, 0.2); }
+.mode-button { font-weight: bold; }
+.level-button { padding: 10px; }
+button.active { background-color: @accent_color; color: @bg_color; font-weight: bold; }
+button.active:hover { background-color: @accent_hover; }
+
+/* Wellbeing List Item Styling */
+.app-name-label {
+    font-size: 11pt;
+    font-weight: bold;
+}
+.progressbar-label {
+    font-size: 9pt;
+    font-weight: bold;
+    color: @fg_color;
+    text-shadow: 0px 0px 4px alpha(black, 0.8);
+}
+.wellbeing-progressbar trough {
+    background-color: alpha(@accent_dark, 0.3);
+    border-radius: 6px;
+    min-height: 24px;
+}
+.wellbeing-progressbar progress {
+    background-color: @accent_color;
+    border-radius: 6px;
+    min-height: 24px;
+}
+
+/* --- NEW: Tier 1 Resource Monitoring Styles --- */
+.resource-progressbar trough {
+    background-color: alpha(black, 0.2);
+    border-radius: 4px;
+    min-height: 22px;
+}
+.resource-progressbar progress {
+    background-color: @res_bar_color;
+    border-radius: 4px;
+    min-height: 22px;
+}
+.resource-progressbar text {
+    font-size: 9pt;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px alpha(black, 0.8);
+}

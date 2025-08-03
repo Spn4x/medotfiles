@@ -1,0 +1,138 @@
+/* Use wallust colors as CSS variables */
+@define-color background {{background}};
+@define-color foreground {{foreground}};
+@define-color accent {{accent}};
+@define-color surface {{surface}};
+
+/* --- Main Window and Container --- */
+window.launcher-window {
+    background-color: transparent;
+}
+
+.main-container {
+    background-color: alpha(@background, 0.3);
+    border: 2px solid alpha(@accent, 0.8);
+    border-radius: 8px;
+    margin: 5px;
+}
+
+/* --- Search Entry --- */
+entry.input-entry {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid alpha(@accent, 0.3);
+    padding: 10px 14px;
+    font-size: 12pt;
+    font-family: "JetBrainsMono Nerd Font";
+    color: @foreground;
+    caret-color: @accent;
+}
+
+entry.input-entry:focus {
+    border-bottom: 2px solid @accent;
+}
+
+entry.input-entry placeholder {
+    color: alpha(@foreground, 0.5);
+}
+
+
+/*
+ * --- List Area (Final Fix Strategy) ---
+ */
+
+/* 1. Make all container widgets completely invisible */
+scrolledwindow.scrolled-window,
+viewport,
+listbox.app-list {
+    background: none;
+    border: none;
+    outline: none;
+}
+
+/* 2. Style the individual rows, which are now "floating" */
+row {
+    background-color: transparent; /* Start transparent */
+    border-radius: 4px;
+    margin: 2px 4px; /* Give rows breathing room */
+    transition: background-color 0.15s ease-in-out;
+}
+
+row:hover {
+    background-color: alpha(@surface, 0.3);
+}
+
+row:selected {
+    background-color: alpha(@surface, 0.6);
+}
+
+/* --- Row Contents --- */
+.app-row-box {
+    padding: 5px 8px;
+}
+
+image.app-icon {
+    margin-right: 10px;
+}
+
+label.app-name {
+    font-family: "JetBrainsMono Nerd Font";
+    color: @foreground;
+    font-weight: 500;
+}
+
+row:selected label.app-name {
+    color: @background; /* Dark text on light selection */
+    font-weight: 700;
+}
+
+/* --- Scrollbar --- */
+scrollbar {
+   -GtkScrollbar-has-backward-stepper: false;
+   -GtkScrollbar-has-forward-stepper: false;
+   min-width: 12px;
+   padding: 2px;
+   background-color: transparent;
+}
+
+scrollbar slider {
+    background-color: @accent;
+    border-radius: 6px;
+    border: 2px solid alpha(@background, 0.8);
+    min-width: 12px;
+}
+
+scrollbar slider:hover {
+    background-color: @surface;
+}
+
+scrollbar trough {
+    background-color: transparent;
+}
+
+
+/* ===== THIS IS THE MISSING SECTION, NOW CORRECTED AND INCLUDED ===== */
+/* launcher.css */
+
+/* Make the listbox container transparent so the window background shows through. */
+.app-list {
+    background-color: transparent;
+}
+
+/* Add some padding to each row to give it space. */
+.app-row {
+    padding: 8px;
+    border-radius: 6px; /* Slightly rounded corners for the selection highlight. */
+}
+
+/* Style the row that is currently selected. */
+.app-row:selected {
+    /* FIXED: Using the dynamic theme accent color instead of a hardcoded blue */
+    background-color: {{accent}};
+}
+
+/* When a row is selected, the text inside it should be white for contrast. */
+.app-row:selected .app-name {
+    /* FIXED: Using the dynamic theme foreground color for better contrast */
+    color: {{foreground}};
+}

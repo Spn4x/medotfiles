@@ -185,9 +185,13 @@
     padding: 0;
 }
 
+.notification-group {
+  background: none;
+
+}
+
 .notification-row:focus,
 .notification-row:hover {
-  background: %%COLOR14_RGBA_50%%; /* Light accent on hover */
 }
 
 .notification-row .notification-background {
@@ -227,6 +231,8 @@
   transition: background 0.15s ease-in-out;
   box-shadow: none;
 }
+
+
 
 .notification-row .notification-background .notification .notification-action:hover,
 .notification-row .notification-background .notification .notification-default-action:hover {
