@@ -1,0 +1,1065 @@
+===== applive.sh =====
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 1) Locate Hyprland's event socket (.socket2.sock)
+# We use HYPRLAND_INSTANCE_SIGNATURE if it's set, otherwise we find the socket.
+if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE-}" ]]; then
+    SOCKET="/run/user/$(id -u)/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+else
+    SOCKET=$(find "/run/user/$(id -u)/hypr" -type s -name ".socket2.sock" | head -n1)
+fi
+
+[[ -S "$SOCKET" ]] || { echo "❌ Cannot find Hyprland event socket at $SOCKET"; exit 1; }
+
+# 2) Ensure Hyprland is running
+pgrep -x Hyprland >/dev/null || { echo "❌ Hyprland not running"; exit 1; }
+
+# 3) In-memory associative array: address → "class — title"
+declare -A windows
+
+# 4) Bootstrap from hyprctl to get the initial list of windows
+while read -r entry; do
+  addr=$(jq -r '.address'   <<<"$entry")
+  cls=$(jq -r '.class'     <<<"$entry")
+  ttl=$(jq -r '.title'     <<<"$entry")
+  # Only add mapped (visible) windows to the initial list
+  if jq -e '.mapped == true' <<<"$entry" >/dev/null; then
+    windows["$addr"]="$cls — $ttl"
+  fi
+done < <(hyprctl -j clients | jq -c '.[]')
+
+# 5) Function to redraw the list
+draw() {
+  clear
+  echo "🖥️  Open apps @ $(date +'%H:%M:%S'):"
+  # Check if the array is empty
+  if [ ${#windows[@]} -eq 0 ]; then
+    echo "• No open windows"
+  else
+    for addr in "${!windows[@]}"; do
+      echo "• ${windows[$addr]}"
+    done
+  fi
+  echo "──────────────────────────"
+}
+
+# Initial draw
+draw
+
+# 6) Listen for events and update the list in a single process
+# By using < <(socat ...), the `while` loop runs in the current shell,
+# allowing it to modify the main 'windows' array directly.
+while IFS= read -r event; do
+    event_type=${event%%>>*}
+    event_data=${event#*>>}
+
+    case "$event_type" in
+        openwindow)
+            # Event format: openwindow>>address,workspace,class,title
+            IFS=',' read -r addr workspace cls ttl <<< "$event_data"
+            # Sometimes title can be empty on open, we can live with it or re-query later
+            windows["$addr"]="$cls — $ttl"
+            draw
+            ;;
+        closewindow)
+            # Event format: closewindow>>address
+            addr="$event_data"
+            # Check if the key exists before unsetting
+            if [[ -v "windows[$addr]" ]]; then
+                unset "windows[$addr]"
+                draw
+            fi
+            ;;
+        windowtitle)
+            # Event format: windowtitle>>address
+            addr="$event_data"
+            # When a title changes, we must re-query hyprctl for the new info
+            if [[ -v "windows[$addr]" ]]; then
+                info=$(hyprctl -j clients | jq -r --arg a "$addr" '.[] | select(.address==$a) | "\(.class) — \(.title)"')
+                windows["$addr"]="$info"
+                draw
+            fi
+            ;;
+    esac
+done < <(socat -u "UNIX-CONNECT:$SOCKET" -)===== audio.sh =====
+#!/bin/bash
+
+# Emoji for outputs
+get_icon() {
+    case "$1" in
+        *soundcore*|*Earphones*|*earphone*|*R50i*) echo "🎧";;
+        *Built-in*|*Speaker*|*Analog*) echo "🔊";;
+        *) echo "🌀";;
+    esac
+}
+
+# Get sinks: skip EasyEffects and junk
+get_sinks() {
+    wpctl status | awk '/Sinks:/, /Sources:/' |
+        grep -v 'Easy Effects Sink' |
+        grep -E '[0-9]+\.' |
+        sed 's/[*│]//g' |
+        sed -E 's/^[[:space:]]*([0-9]+)\.[[:space:]]*(.*)\[vol:[^]]+\]/\1|\2/' |
+        xargs -n1 echo
+}
+
+# Get current default sink ID
+get_current_sink_id() {
+    wpctl status | awk '/Default Sink:/ {print $3}'
+}
+
+# Get current sink's name
+get_current_sink_name() {
+    id=$(get_current_sink_id)
+    get_sinks | grep "^$id|" | cut -d'|' -f2
+}
+
+# MAIN
+action="$1"
+
+sinks=($(get_sinks))
+sink_ids=()
+sink_names=()
+
+for entry in "${sinks[@]}"; do
+    id="${entry%%|*}"
+    name="${entry#*|}"
+    sink_ids+=("$id")
+    sink_names+=("$name")
+done
+
+current_id=$(get_current_sink_id)
+current_index=-1
+
+# Find current index
+for i in "${!sink_ids[@]}"; do
+    if [[ "${sink_ids[$i]}" == "$current_id" ]]; then
+        current_index=$i
+        break
+    fi
+done
+
+# Only show icon if no argument
+if [[ -z "$action" ]]; then
+    current_name=$(get_current_sink_name)
+    get_icon "$current_name"
+    exit 0
+fi
+
+# Compute new index
+if [[ "$action" == "next" ]]; then
+    next_index=$(( (current_index + 1) % ${#sink_ids[@]} ))
+elif [[ "$action" == "prev" ]]; then
+    next_index=$(( (current_index - 1 + ${#sink_ids[@]}) % ${#sink_ids[@]} ))
+else
+    echo "Unknown action: $action"
+    exit 1
+fi
+
+# Switch sink
+new_id="${sink_ids[$next_index]}"
+new_name="${sink_names[$next_index]}"
+wpctl set-default "$new_id"
+echo "Switched to: $new_name"
+===== autosprint.sh =====
+
+#!/bin/bash
+
+PIDFILE="/tmp/autosprint.pid"
+
+if [ -f "$PIDFILE" ]; then
+  echo "Stopping auto sprint..."
+  kill "$(cat $PIDFILE)"
+  rm $PIDFILE
+else
+  echo "Starting auto sprint..."
+  while true; do
+    wtype -d 10 w
+    sleep 0.05
+  done &
+  echo $! > "$PIDFILE"
+fi
+===== clion-safe.sh =====
+#!/bin/bash
+
+# CLion launcher path from JetBrains Toolbox install
+CLION_LAUNCHER="$HOME/.local/share/JetBrains/Toolbox/apps/clion/bin/clion.sh"
+
+# Lock CLion and its spawn to a tight 1.5GB sandbox
+systemd-run --user --scope \
+  -p MemoryMax=1500M \
+  -p MemorySwapMax=512M \
+  "$CLION_LAUNCHER"
+===== glava_wofi.sh =====
+#!/usr/bin/env bash
+
+# Script to launch new Glava visualizer instances via wofi,
+# or stop all existing instances.
+# Uses Wallust-generated wofi theme if available.
+
+# --- Configuration ---
+WOFI_STYLE_PATH="$HOME/.config/wofi/style-wallust-generated.css"
+options="Bars Mode (New Instance)\nRadial Mode (New Instance)\nStop ALL Glava Instances"
+prompt="Select Glava Action:"
+
+# --- Wofi Command Setup ---
+wofi_command_args=("--dmenu" "--prompt" "$prompt")
+if [ -f "$WOFI_STYLE_PATH" ]; then
+    wofi_command_args+=("--style" "$WOFI_STYLE_PATH")
+else
+    echo "WARNING: Wallust-generated Wofi style not found at '$WOFI_STYLE_PATH'. Using default." >&2
+fi
+
+# --- Helper Function ---
+
+# Kills all running glava instances
+kill_all_glava_instances() {
+    if pgrep -x "glava" > /dev/null; then
+        echo "Stopping ALL existing Glava instance(s)..."
+        pkill glava
+        sleep 0.5 # Give it a moment to terminate gracefully
+        return 0 # Indicate that instances were likely killed
+    fi
+    return 1 # Indicate no instances were running to kill
+}
+
+# --- Main Logic ---
+chosen=$(echo -e "$options" | wofi "${wofi_command_args[@]}")
+
+case "$chosen" in
+    "Bars Mode (New Instance)")
+        echo "Starting a new Glava instance in Bars Mode..."
+        glava --force-mod bars &
+        # notify-send "Glava" "New Bars Mode instance started." # Optional
+        ;;
+
+    "Radial Mode (New Instance)")
+        echo "Starting a new Glava instance in Radial Mode..."
+        glava --force-mod radial &
+        # notify-send "Glava" "New Radial Mode instance started." # Optional
+        ;;
+
+    "Stop ALL Glava Instances")
+        if kill_all_glava_instances; then
+            echo "All Glava instances stopped."
+            # notify-send "Glava" "All instances stopped." # Optional
+        else
+            echo "No Glava instances were running."
+            # notify-send "Glava" "No instances were running." # Optional
+        fi
+        ;;
+
+    *)
+        if [ -z "$chosen" ]; then
+            echo "No option selected. Exiting."
+        else
+            echo "Invalid choice: '$chosen'. Exiting."
+        fi
+        exit 1
+        ;;
+esac
+
+exit 0
+===== gparted-wayland.sh =====
+#!/bin/bash
+
+export DISPLAY=$DISPLAY
+export WAYLAND_DISPLAY=$WAYLAND_DISPLAY
+export XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
+export XAUTHORITY=$XAUTHORITY
+export DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS
+export GTK_THEME=Adwaita:dark
+
+exec /usr/bin/gparted
+===== hydrate.sh =====
+#!/bin/bash
+
+# Config
+STATE_FILE="/tmp/hydration_state"
+MAX_LEVEL=6
+BAR_SYMBOLS=( "▓" "▓" "▒" "▒" "░" "░" )
+LABEL="O2"
+LEFT_EDGE="▐"
+RIGHT_EDGE="▌"
+
+# Read or initialize state
+[[ ! -f "$STATE_FILE" ]] && echo 0 > "$STATE_FILE"
+LEVEL=$(<"$STATE_FILE")
+
+# Handle refill
+if [[ "$1" == "refill" ]]; then
+  LEVEL=0
+else
+  LEVEL=$((LEVEL + 1))
+  (( LEVEL > MAX_LEVEL )) && LEVEL=MAX_LEVEL
+fi
+
+# Save new state
+echo "$LEVEL" > "$STATE_FILE"
+
+# Generate bar
+BAR=""
+for ((i=0; i<MAX_LEVEL; i++)); do
+  if (( i < MAX_LEVEL - LEVEL )); then
+    BAR+="${BAR_SYMBOLS[i]}"
+  else
+    BAR+=" "
+  fi
+done
+
+# Output
+echo "$LABEL $LEFT_EDGE$BAR$RIGHT_EDGE"
+===== runall.sh =====
+#!/usr/bin/env bash
+#
+# run v6.4 (The Final Version + CMake & Guard): The Definitive Universal Runner
+#
+
+# --- A) Prevent infinite recursion ---
+[[ "$RUN_SELF_CALL" == "1" ]] && exit 0
+export RUN_SELF_CALL=1
+
+# --- 1. Setup & Defaults ---
+SCRIPT_VERSION="v6.4 (The Final Version + CMake)"
+INFO="\033[1;34m"; OK="\033[1;32m"; WARN="\033[1;33m"; ERR="\033[1;31m"; CMD_COLOR="\033[0;36m"; RESET="\033[0m"
+DEFAULT_FILE_ORDER=(main.py app.py index.ts main.ts index.js main.go main.c main.cpp main.rs Makefile CMakeLists.txt)
+TS_NODE_FLAGS="--transpile-only"
+DEFAULT_FILE=""
+PLUGIN_DIR="$HOME/.config/run/plugins"
+ENABLE_LOGGING=false
+LOG_FILE="$HOME/.cache/run/history.log"
+LOG_MAX_LINES=1000
+RUNRC_FILE=".runrc"
+
+[ -f ~/.runrc.global ] && source ~/.runrc.global
+[ -n "$DEFAULT_FILE" ] && DEFAULT_FILE_ORDER=("$DEFAULT_FILE" "${DEFAULT_FILE_ORDER[@]}")
+
+# --- 2. Handler Registries ---
+declare -A FILE_HANDLERS    # ext -> func
+declare -A PROJECT_HANDLERS # marker -> func
+declare -A INIT_HANDLERS    # lang -> func
+declare -A REPL_HANDLERS    # lang -> func
+
+# --- 3. Core Functions ---
+show_help() {
+  # Print the header with colors
+  echo -e "\n${INFO}run ${SCRIPT_VERSION}${RESET}\n"
+  cat <<EOF
+Usage: run [flags] [target]
+
+GENERATIVE & CLEANUP:
+  --init <lang>       Create boilerplate (py, js, cpp, rs, go, lua, php, rb, pl, md, html)
+  --clean             Remove binaries, .class, target/, dist/
+
+CORE:
+  run <file>          Run a single file
+  run                 Auto-detect & run project or default file
+  --repl <lang>       Launch REPL (py, node, rb, lua, bash, etc.)
+
+INFO:
+  -v, --version, --help, --list, --langs, --check, --detect
+
+EXECUTION:
+  --force             Rebuild even if up to date
+  --debug             Echo commands before executing
+  --include <path>    Add JARs to Java classpath
+  --log               Enable command logging
+
+EXTENSIBILITY:
+  .runrc / ~/.runrc.global / ~/.config/run/plugins/
+
+EOF
+  exit 0
+}
+
+list_languages() {
+  echo -e "${INFO}Supported Projects & File Types:${RESET}"
+  echo "  Projects by marker: .runrc, setup.py, pyproject.toml, manage.py, app.py,"
+  echo "                     pom.xml, build.gradle(.kts), Cargo.toml, package.json,"
+  echo "                     go.mod, CMakeLists.txt, Makefile"
+  echo "  File exts: (shebang), .jsx/.tsx, .ts, .py, .js, .go, .sh, .lua,"
+  echo "             .php, .rb, .pl, .c/.cpp, .rs, .java, .html, .md"
+  if [ -d "$PLUGIN_DIR" ] && [ "$(ls -A "$PLUGIN_DIR")" ]; then
+    echo -e "\nPlugin-provided support:"
+    for p in "$PLUGIN_DIR"/*.sh; do
+      source "$p" &>/dev/null
+      type plugin_help &>/dev/null && plugin_help
+    done
+  fi
+  exit 0
+}
+
+check_environment() {
+  echo -e "${INFO}Checking for required tools${RESET}"
+  local tools=(python3 node gcc g++ rustc go java javac mvn cargo npm yarn pnpm poetry flask npx ts-node lua php ruby perl glow less make cmake)
+  local ok=true
+  for t in "${tools[@]}"; do
+    if command -v "$t" &>/dev/null; then
+      echo -e "  [${OK}✔${RESET}] $t"
+    else
+      echo -e "  [${ERR}✘${RESET}] $t"
+      ok=false
+    fi
+  done
+  $ok && echo -e "${OK}All essential tools found.${RESET}" || echo -e "${WARN}Some tools are missing.${RESET}"
+  exit 0
+}
+
+list_detections() {
+  echo -e "${INFO}Detections in this directory:${RESET}"
+  local projects=() files=()
+  # plugin markers
+  for marker in "${!PROJECT_HANDLERS[@]}"; do
+    [ -f "$marker" ] && projects+=("Plugin($marker)")
+  done
+  # built-ins
+  for m in .runrc setup.py pyproject.toml manage.py app.py pom.xml build.gradle build.gradle.kts Cargo.toml package.json go.mod CMakeLists.txt Makefile; do
+    [ -f "$m" ] && projects+=("$m")
+  done
+  for f in "${DEFAULT_FILE_ORDER[@]}"; do
+    [ -f "$f" ] && files+=("$f")
+  done
+
+  if [ "${#projects[@]}" -eq 0 ]; then
+    echo "  (none)"
+  else
+    printf '  - %s\n' "${projects[@]}"
+  fi
+
+  echo
+  if [ "${#files[@]}" -eq 0 ]; then
+    echo "No default runnable files."
+  else
+    printf '  - %s\n' "${files[@]}"
+  fi
+  exit 0
+}
+
+clean_artifacts() {
+  echo -e "${INFO}Cleaning binaries, .class, target/, dist/${RESET}"
+  local removed=false
+  for f in *; do
+    if [ -f "$f" ] && [ -x "$f" ] && [[ "$f" != *.* ]]; then
+      rm -f "$f" && echo " Removed $f"; removed=true
+    fi
+  done
+  if compgen -G "*.class" &>/dev/null; then
+    rm -f *.class && echo " Removed Java .class files"; removed=true
+  fi
+  [ -d target ] && rm -rf target && echo " Removed Rust target/"; removed=true
+  [ -d dist   ] && rm -rf dist   && echo " Removed JS dist/";   removed=true
+  [ -d .run_tmp ] && rm -rf .run_tmp && echo " Removed .run_tmp/"; removed=true
+
+  $removed || echo "No artifacts to clean."
+  exit 0
+}
+
+prompt_add_to_gitignore() {
+  local file_to_ignore="$1"
+  # Check if we're in a git repo and the file exists
+  if [ -d ".git" ] && [ -f ".gitignore" ]; then
+      # Check if the file is NOT already in .gitignore
+      if ! grep -qxF "$file_to_ignore" .gitignore; then
+          read -p "Add $file_to_ignore to .gitignore? (y/N) " -n 1 -r
+          echo # Move to a new line after the user's input
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+              echo "" >> .gitignore # ensure there's a newline before our entry
+              echo "$file_to_ignore" >> .gitignore
+              echo -e "${OK}Added $file_to_ignore to .gitignore.${RESET}"
+          fi
+      fi
+  fi
+}
+
+
+# --- 4. Generative & REPL Handlers ---
+INIT_HANDLERS[py]='echo "print(\"Hello, Python!\")" > main.py; echo Created main.py'
+INIT_HANDLERS[js]='echo "console.log(\"Hello, JavaScript!\");" > index.js; echo Created index.js'
+INIT_HANDLERS[cpp]=$'cat > main.cpp <<EOF\n#include <iostream>\nint main(){ std::cout<<"Hello, C++!\\n"; }\nEOF\necho Created main.cpp'
+INIT_HANDLERS[c]=$'cat > main.c <<EOF\n#include <stdio.h>\nint main(){ printf("Hello, C!\\n"); }\nEOF\necho Created main.c'
+INIT_HANDLERS[rs]='cargo new . --name my_rust_app && echo Created Rust project'
+INIT_HANDLERS[go]='echo -e "package main\nimport \\"fmt\\"\nfunc main(){fmt.Println(\\"Hello, Go!\\")}" > main.go; echo Created main.go'
+INIT_HANDLERS[ts]='echo "console.log(\"Hello, TypeScript!\");" > index.ts; echo Created index.ts'
+INIT_HANDLERS[lua]='echo "print(\"Hello, Lua!\")" > main.lua; echo Created main.lua'
+INIT_HANDLERS[php]='echo "<?php echo \"Hello, PHP!\\n\";?>" > index.php; echo Created index.php'
+INIT_HANDLERS[rb]='echo "puts \"Hello, Ruby!\"" > main.rb; echo Created main.rb'
+INIT_HANDLERS[pl]='echo "print \"Hello, Perl!\\n\";" > main.pl; echo Created main.pl'
+INIT_HANDLERS[md]='echo "# Hello, Markdown!" > README.md; echo Created README.md'
+INIT_HANDLERS[html]='echo "<!DOCTYPE html><html><body><h1>Hello, HTML!</h1></body></html>" > index.html; echo Created index.html'
+
+REPL_HANDLERS[py]='exec python3'
+REPL_HANDLERS[js]='exec node'
+REPL_HANDLERS[node]='exec node'
+REPL_HANDLERS[rb]='exec irb'
+REPL_HANDLERS[lua]='exec lua'
+REPL_HANDLERS[sh]='exec bash'
+REPL_HANDLERS[bash]='exec bash'
+REPL_HANDLERS[php]='exec php -a'
+
+# --- 5. Execution Helper ---
+execute_command() {
+  local cmd="$1"
+
+  # If .runrc doesn't exist, this is potentially the first run.
+  # We'll save the command to be written out later if it succeeds.
+  local cmd_to_save=""
+  if [ ! -f "$RUNRC_FILE" ]; then
+      cmd_to_save="$cmd"
+  fi
+
+  if $ENABLE_LOGGING; then
+    mkdir -p "$(dirname "$LOG_FILE")"
+    if [ -f "$LOG_FILE" ] && [ "$(wc -l < "$LOG_FILE")" -gt "$LOG_MAX_LINES" ]; then
+      tail -n $((LOG_MAX_LINES/2)) "$LOG_FILE" > "$LOG_FILE.tmp"
+      mv "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+    echo "[$(date)] CMD: $cmd" >>"$LOG_FILE"
+  fi
+
+  $DEBUG && echo -e "[DEBUG] Executing: $cmd"
+
+  # We can't use `exec` anymore, as it replaces the script process.
+  # We need to run the command, wait for it, and then check its exit code.
+  bash -c "$cmd"
+  local exit_status=$?
+
+  # --- After-run logic ---
+  # If the command succeeded (exit code 0) and we have a command to save...
+  if [ $exit_status -eq 0 ] && [ -n "$cmd_to_save" ]; then
+    echo # for spacing
+    echo -e "${INFO}First successful run. Caching command...${RESET}"
+    echo "CMD=\"$cmd_to_save\"" > "$RUNRC_FILE"
+    echo -e "Saved command to ${OK}$RUNRC_FILE${RESET} for future use."
+    echo -e "Use ${WARN}run --om \"new command\"${RESET} to overwrite."
+
+    prompt_add_to_gitignore "$RUNRC_FILE"
+
+  fi
+
+  # Exit this script with the same status code as the command we ran
+  exit $exit_status
+}
+
+# --- 6. Argument Parsing ---
+FORCE=false; DETECT_ONLY=false; DEBUG=false; INIT_LANG=""; REPL_LANG=""; INCLUDE_PATHS=""; CLEAN=false; OVERWRITE_COMMAND="" # <-- ADD VARIABLE HERE
+POSITIONAL=()
+while (( "$#" )); do
+  case $1 in
+    -v|--version) echo "run $SCRIPT_VERSION"; exit;;
+    --help)       show_help;;
+    --list)       list_detections;;
+    --langs)      list_languages;;
+    --check)      check_environment;;
+    --detect)     DETECT_ONLY=true; shift;;
+    --force)      FORCE=true; shift;;
+    --debug)      DEBUG=true; shift;;
+    --log)        ENABLE_LOGGING=true; shift;;
+    --clean)      CLEAN=true; shift;;
+    --init|-i)    INIT_LANG="$2"; shift 2;;
+    --repl)       REPL_LANG="$2"; shift 2;;
+    --om|--overwrite-make) OVERWRITE_COMMAND="$2"; shift 2;; # <-- ADD THIS LINE
+    --include)    INCLUDE_PATHS=":$2"; shift 2;;
+    -* )          echo -e "${ERR}Unknown flag $1${RESET}"; exit 1;;
+    * )           POSITIONAL+=("$1"); shift;;
+  esac
+done
+set -- "${POSITIONAL[@]}"
+
+# --- 7. Handle Generative & Clean Flags ---
+$CLEAN && clean_artifacts
+if [ -n "$INIT_LANG" ]; then
+  if [ -n "${INIT_HANDLERS[$INIT_LANG]}" ]; then
+    eval "${INIT_HANDLERS[$INIT_LANG]}"; exit
+  else
+    echo -e "${ERR}Unsupported init language: $INIT_LANG${RESET}"; exit 1
+  fi
+fi
+if [ -n "$REPL_LANG" ]; then
+  if [ -n "${REPL_HANDLERS[$REPL_LANG]}" ]; then
+    eval "${REPL_HANDLERS[$REPL_LANG]}"
+  else
+    echo -e "${ERR}Unsupported REPL language: $REPL_LANG${RESET}"; exit 1
+  fi
+  exit
+fi
+
+
+# --- 7.5: Handle .runrc and Overwrite Mode ---
+
+# Priority 1: Handle manual overwrite mode (--om)
+if [ -n "$OVERWRITE_COMMAND" ]; then
+    echo "CMD=\"$OVERWRITE_COMMAND\"" > "$RUNRC_FILE"
+    echo -e "${OK}Saved new command to $RUNRC_FILE:${RESET}"
+    echo -e "  ${CMD_COLOR}$OVERWRITE_COMMAND${RESET}"
+    prompt_add_to_gitignore "$RUNRC_FILE"
+    exit 0
+fi
+
+# Priority 2: If no file is passed, check for an existing .runrc
+if [ -z "$1" ] && [ -f "$RUNRC_FILE" ]; then
+    echo -e "${INFO}Using cached command from .runrc...${RESET}"
+    source "$RUNRC_FILE"
+    if [ -z "$CMD" ]; then
+        echo -e "${ERR}.runrc found but 'CMD' variable is not set.${RESET}"
+        echo -e "${WARN}You can reset it with: run --om \"your command\"${RESET}"
+        exit 1
+    fi
+    # Use the existing execute_command function to run the cached command
+    execute_command "$CMD"
+fi
+
+
+# --- 8. Plugin Loader ---
+[ -d "$PLUGIN_DIR" ] && for plug in "$PLUGIN_DIR"/*.sh; do [ -f "$plug" ] && source "$plug"; done
+
+# --- 9. Project Detection & Default File ---
+if [ -z "$1" ]; then
+  # plugin project handlers
+  for marker in "${!PROJECT_HANDLERS[@]}"; do
+    [ -f "$marker" ] && { "${PROJECT_HANDLERS[$marker]}"; exit; }
+  done
+
+
+  # Python projects
+  if [ -f setup.py ] || [ -f pyproject.toml ]; then
+    $DETECT_ONLY && { echo "DETECTED: Python project"; exit; }
+    if [ -f manage.py ]; then
+      execute_command "python3 manage.py runserver"
+    else
+      execute_command "python3 main.py"
+    fi
+  fi
+
+# Node.js
+if [ -f package.json ]; then
+  pkg="npm"
+  [ -f yarn.lock ]      && pkg="yarn"
+  [ -f pnpm-lock.yaml ] && pkg="pnpm"
+  $DETECT_ONLY && { echo "DETECTED: Node.js ($pkg)"; exit; }
+  $FORCE && rm -rf node_modules
+  $pkg install --silent
+
+  # Pick main from package.json or default to index.js
+  entry=$(node -p "require('./package.json').main || 'index.js'" 2>/dev/null)
+  # If that file doesn't actually exist, fallback again
+  [ ! -f "$entry" ] && entry="index.js"
+
+  run="node \"$entry\""
+  execute_command "$pkg run start --if-present || $run"
+fi
+
+# --- Java Project Detection (Manual, Maven, Gradle, Plain) ---
+handled_java=false
+
+# 1. Manual Java + JARs
+if ! $handled_java && ls lib/*.jar &>/dev/null; then
+  jars=$(echo lib/*.jar | tr ' ' ':')
+  main_class=$(find src -name '*.java' -exec grep -l 'public static void main' {} + \
+    | head -n1 | sed 's|src/||;s|\.java||;s|/|.|g')
+
+  [ -z "$main_class" ] && {
+    echo -e "${ERR}No Java main class found${RESET}"
+    exit 1
+  }
+
+  echo -e "${INFO}Detected Java (manual JAR project):${RESET} $main_class"
+  mkdir -p .run_tmp
+  find src -name '*.java' > .run_tmp/sources.txt
+  javac -d .run_tmp/classes -cp "$jars" @.run_tmp/sources.txt || {
+    echo -e "${ERR}Manual Java compilation failed${RESET}"
+    exit 1
+  }
+  execute_command "java -cp \"$jars:.run_tmp/classes\" $main_class"
+  handled_java=true
+fi
+
+# 2. Maven
+if ! $handled_java && [ -f pom.xml ]; then
+  if command -v mvn &>/dev/null; then
+    cmd="mvn compile exec:java"
+    $FORCE && cmd="mvn clean && $cmd"
+    $DETECT_ONLY && { echo "DETECTED: Maven"; exit; }
+    execute_command "$cmd"
+  else
+    echo -e "${WARN}Maven not found. Falling back to manual javac...${RESET}"
+    main_class=$(find src/main/java -name '*.java' -exec grep -l 'public static void main' {} + \
+      | head -n1 | sed 's|src/main/java/||;s|\.java||;s|/|.|g')
+
+    [ -z "$main_class" ] && {
+      echo -e "${ERR}No Java main class found${RESET}"
+      exit 1
+    }
+
+    echo -e "${INFO}Detected Java (Maven fallback):${RESET} $main_class"
+    mkdir -p .run_tmp
+    find src/main/java -name '*.java' > .run_tmp/sources.txt
+    javac -d .run_tmp/classes @.run_tmp/sources.txt || {
+      echo -e "${ERR}Java compilation failed${RESET}"
+      exit 1
+    }
+    execute_command "java -cp .run_tmp/classes $main_class"
+  fi
+  handled_java=true
+fi
+
+# 3. Gradle
+if ! $handled_java && ([ -f build.gradle ] || [ -f build.gradle.kts ]); then
+  cmd="./gradlew run"
+  $FORCE && cmd="./gradlew clean build run"
+  $DETECT_ONLY && { echo "DETECTED: Gradle"; exit; }
+  [ -f gradlew ] && chmod +x gradlew
+  execute_command "$cmd"
+  handled_java=true
+fi
+
+# 4. Fallback: Plain Java (src/main/java)
+if ! $handled_java && [ -d src/main/java ]; then
+  main_class=$(find src/main/java -name '*.java' -exec grep -l 'public static void main' {} + \
+    | head -n1 | sed 's|src/main/java/||;s|\.java||;s|/|.|g')
+
+  [ -z "$main_class" ] && {
+    echo -e "${ERR}No Java main class found${RESET}"
+    exit 1
+  }
+
+  echo -e "${INFO}Detected Java (manual fallback):${RESET} $main_class"
+  mkdir -p .run_tmp
+  find src/main/java -name '*.java' > .run_tmp/sources.txt
+  javac -d .run_tmp/classes @.run_tmp/sources.txt || {
+    echo -e "${ERR}Java compilation failed${RESET}"
+    exit 1
+  }
+  execute_command "java -cp .run_tmp/classes $main_class"
+  handled_java=true
+fi
+
+
+  # Cargo
+  if [ -f Cargo.toml ]; then
+    cmd="cargo run"
+    $FORCE && cmd="cargo clean && $cmd"
+    $DETECT_ONLY && { echo "DETECTED: Cargo"; exit; }
+    execute_command "$cmd"
+  fi
+
+  # Makefile
+  if [ -f Makefile ]; then
+    cmd="make"
+    $FORCE && cmd="make clean && make"
+    $DETECT_ONLY && { echo "DETECTED: Makefile"; exit; }
+    execute_command "$cmd"
+  fi
+
+# CMakeLists.txt
+if [ -f CMakeLists.txt ]; then
+  build_dir=.build
+  cmd="cmake -S . -B $build_dir && cmake --build $build_dir"
+  $FORCE && { rm -rf "$build_dir"; }
+
+  $DETECT_ONLY && { echo "DETECTED: CMake"; exit; }
+  # Build & then run the generated binary
+  execute_command "$cmd && { \
+    exe=\$(find \"$build_dir\" -maxdepth 1 -type f -executable | head -n1) && \
+    echo -e \"${INFO}Running: \$exe${RESET}\" && \
+    \"\$exe\"; \
+  }"
+fi
+
+  # Smart-guess C/C++
+  shopt -s nullglob
+  cpps=(*.cpp *.cc); cs=(*.c); pys=(*.py)
+  if (( ${#cpps[@]}>0 && ${#cs[@]}==0 && ${#pys[@]}==0 )); then
+    set -- "${cpps[0]}"
+  elif (( ${#cs[@]}>0 && ${#cpps[@]}==0 && ${#pys[@]}==0 )); then
+    set -- "${cs[0]}"
+  fi
+  shopt -u nullglob
+
+  # Fallback file list
+  if [ -z "$1" ]; then
+    for f in "${DEFAULT_FILE_ORDER[@]}"; do
+      [ -f "$f" ] && { set -- "$f"; break; }
+    done
+  fi
+
+  [ -z "$1" ] && { show_help; exit; }
+fi
+
+# --- 10. Single-File Runner ---
+FILE="$1"
+[ ! -f "$FILE" ] && { echo -e "${ERR}File not found: $FILE${RESET}"; exit 1; }
+
+# plugin file handlers
+for ext in "${!FILE_HANDLERS[@]}"; do
+  if [[ "$FILE" == *"$ext" ]]; then
+    "${FILE_HANDLERS[$ext]}" "$FILE"
+    exit
+  fi
+done
+
+# shebang scripts
+first=$(head -n1 "$FILE")
+if [[ "$first" == "#!"* ]]; then
+  interp=$(echo "$first" | cut -c3- | awk '{print $1}')
+  command -v "$interp" &>/dev/null || { echo -e "${ERR}Interpreter '$interp' not found.${RESET}"; exit 127; }
+  $DETECT_ONLY && { echo "DETECTED: Shebang   $interp"; exit; }
+  execute_command "chmod +x '$FILE' && '$FILE'"
+fi
+
+# compile & run helper
+compile_and_run() {
+  local cc="$1" src="$2" out="${2%.*}"
+  $FORCE && rm -f "$out" 2>/dev/null
+  eval "$cc '$src' -o '$out'$INCLUDE_PATHS" || { echo -e "${ERR}Compile failed${RESET}"; exit 1; }
+  execute_command "./$out"
+}
+
+if [ -f "CMakeLists.txt" ]; then
+  exe=$(find cmake-build-debug -maxdepth 1 -type f -executable | head -n1)
+  if [ -n "$exe" ] && [ "$exe" -nt "$FILE" ]; then
+    echo -e "${INFO}CMake project detected. Running built executable: $exe${RESET}"
+    "$exe"
+    exit 0
+  else
+    echo -e "${WARN}CMake project detected, but no recent build found. Falling back to compiling: $FILE${RESET}"
+  fi
+fi
+
+case "$FILE" in
+  *.cpp|*.cc) compile_and_run g++  "$FILE";;
+  *.c)        compile_and_run gcc  "$FILE";;
+  *.rs)       compile_and_run rustc "$FILE";;
+  *.py)       $DETECT_ONLY && { echo "DETECTED: Python"; exit; }; execute_command "python3 '$FILE'";;
+  *.js)       $DETECT_ONLY && { echo "DETECTED: JavaScript"; exit; }; execute_command "node '$FILE'";;
+  *.ts)       command -v npx &>/dev/null || { echo -e "${ERR}npx missing${RESET}"; exit 1; }; $DETECT_ONLY && { echo "DETECTED: TypeScript"; exit; }; execute_command "npx ts-node $TS_NODE_FLAGS '$FILE'";;
+  *.go)       $DETECT_ONLY && { echo "DETECTED: Go"; exit; }; execute_command "go run '$FILE'";;
+  *.sh)       $DETECT_ONLY && { echo "DETECTED: Shell"; exit; }; chmod +x "$FILE"; execute_command "bash '$FILE'";;
+  *.rb)       $DETECT_ONLY && { echo "DETECTED: Ruby"; exit; }; execute_command "ruby '$FILE'";;
+  *.pl)       $DETECT_ONLY && { echo "DETECTED: Perl"; exit; }; execute_command "perl '$FILE'";;
+  *.php)      $DETECT_ONLY && { echo "DETECTED: PHP"; exit; }; execute_command "php '$FILE'";;
+  *.lua)      $DETECT_ONLY && { echo "DETECTED: Lua"; exit; }; execute_command "lua '$FILE'";;
+  *.java)     $DETECT_ONLY && { echo "DETECTED: Java"; exit; }; execute_command "javac -cp .${INCLUDE_PATHS} '$FILE' && java -cp .${INCLUDE_PATHS} '${FILE%.java}'";;
+  *.html)    
+      dn=$(dirname "$FILE"); port=${PORT:-8000}
+      command -v lsof &>/dev/null && while lsof -i :"$port" &>/dev/null; do ((port++)); done
+      $DETECT_ONLY && { echo "DETECTED: HTML"; exit; }
+      echo -e "${INFO}Serving http://localhost:$port${RESET}"
+      execute_command "python3 -m http.server $port -d '$dn'";;
+  *.md)       
+      viewer="glow"; command -v glow &>/dev/null || viewer="less"
+      $DETECT_ONLY && { echo "DETECTED: Markdown"; exit; }
+      execute_command "$viewer '$FILE'";;
+  *)          
+      echo -e "${ERR}Unknown file type: $FILE${RESET}"
+      exit 1;;
+esac
+
+exit 0
+===== sprint.sh =====
+#!/bin/sh
+# This sends a double W press using ydotool
+ydotool key 17:1 17:0
+sleep 0.05
+ydotool key 17:1 17:0
+===== toggle-applauncher.sh =====
+#!/bin/bash
+
+LAUNCHER_DIR="$HOME/dotfiles/.config/hypr/C-widgets/archlauncher-c"
+LAUNCHER_BIN="$LAUNCHER_DIR/my-launcher"
+LAUNCHER_NAME="my-launcher"
+
+if pgrep -x "$LAUNCHER_NAME" > /dev/null; then
+    pkill -x "$LAUNCHER_NAME"
+else
+    cd "$LAUNCHER_DIR" || exit
+    "$LAUNCHER_BIN" &
+fi
+===== toggle-sidebar.sh =====
+#!/bin/bash
+
+SIDEBAR_DIR="$HOME/.config/hypr/C-widgets/sidebar/builddir"
+SIDEBAR_NAME="hypr-sidebar"
+
+if pgrep -x "$SIDEBAR_NAME" > /dev/null; then
+    pkill -x "$SIDEBAR_NAME"
+else
+    cd "$SIDEBAR_DIR" || exit
+    ./hypr-sidebar &
+fi
+===== volume.sh =====
+#!/usr/bin/env bash
+
+status=$(volumectl get)
+
+if [[ "$status" =~ [Mm]uted ]]; then
+    icon="󰝟"
+    vol="0%"
+else
+    vol_num=$(echo "$status" | grep -oE '[0-9]+')
+    vol=${vol_num:-0}%
+    if (( vol_num > 66 )); then
+        icon="󰕾"
+    elif (( vol_num > 33 )); then
+        icon="󰖀"
+    else
+        icon="󰕿"
+    fi
+fi
+
+echo "$icon $vol"
+===== ytapp.sh =====
+#!/bin/bash
+
+# --- yplay.final (The Definitive, Polished Version) ---
+# This version combines all bug fixes, features, and visual polish into one
+# definitive script. It removes the distracting animations and focuses on a
+# clean, stable, and highly functional user experience.
+#
+# FINAL FEATURES:
+# - Clean, static UI with no distracting animations.
+# - Perfected three-state repeat cycle: (r) OFF -> (R) PLAYLIST -> (1) SINGLE.
+# - 'Add to Queue' ('a') and 'Replace Playlist' ('/') functionality.
+# - Highlighted current track for excellent visibility.
+# - All bugs (seeking, topic filtering, etc.) are fixed.
+#
+# Dependencies: yt-dlp, mpv, mpv-mpris, fzf, jq, socat
+
+# --- CONFIGURATION ---
+SEARCH_COUNT=50; PREFER_TOPIC_CHANNELS=true; MPRIS_PATH="/usr/lib/mpv/scripts/mpris.so"
+
+# --- TUI & COLORS ---
+C_RESET='\033[0m'; C_CYAN='\033[0;36m'; C_GREEN='\033[0;32m'; C_YELLOW='\033[0;33m'; C_GRAY='\033[0;90m'; C_BOLD='\033[1m'
+C_INVERSE='\033[7m'
+ICON_PLAY="▶"; ICON_PAUSE="⏸"; ICON_SEARCH="?"
+PROG_FILLED="="; PROG_EMPTY="-"
+
+# --- SCRIPT STATE ---
+SESSION_DIR=$(mktemp -d); IPC_SOCKET="${SESSION_DIR}/mpv-socket"
+declare -a PLAYLIST_IDS=() PLAYLIST_TITLES=() PLAYLIST_UPLOADS=()
+RESIZED=true; REPEAT_STATE=1 # 0=Off, 1=Playlist, 2=Single
+
+# --- CORE FUNCTIONS ---
+cleanup() { tput cnorm; tput clear; echo "Shutting down..."; [ -S "$IPC_SOCKET" ] && echo '{ "command": ["quit"] }' | socat - "$IPC_SOCKET" >/dev/null 2>&1; rm -rf "$SESSION_DIR"; exit 0; }
+mpv_command() { echo "$1" | socat - "$IPC_SOCKET" >/dev/null 2>&1; }
+mpv_get_property() { echo "{\"command\": [\"get_property\", \"$1\"]}" | socat - "$IPC_SOCKET" 2>/dev/null | jq -r .data; }
+
+# --- THE STABLE TUI ENGINE ---
+draw_full_ui_frame() {
+    local width=$(tput cols); local height=$(tput lines); tput clear; tput civis
+    tput cup 0 0; printf "${C_CYAN}${C_BOLD}%*s\n${C_RESET}" $(( (width + 15) / 2 )) "yplay - Final"
+    tput cup 1 0; printf "%${width}s" | tr ' ' '-'
+    tput cup 2 1; echo -e "${C_YELLOW}Now Playing:${C_RESET}"
+    tput cup 5 1; echo -e "${C_YELLOW}Progress:${C_RESET}"
+    tput cup 7 0; printf "%${width}s" | tr ' ' '-'
+    tput cup 8 1; echo -e "${C_YELLOW}Playlist Queue:${C_RESET}"
+    tput cup $((height - 2)) 0; printf "%${width}s" | tr ' ' '-'
+    tput cup $((height - 1)) 0; tput el
+    echo -e " ${C_CYAN}(p/s)${C_RESET}pause ${C_CYAN}(n/b)${C_RESET}next/prev ${C_CYAN}(r)${C_RESET}epeat ${C_CYAN}(a)${C_RESET}dd ${C_CYAN}(/)${C_RESET}search ${C_CYAN}(q)${C_RESET}uit"
+    RESIZED=false
+}
+
+update_tui() {
+    [[ "$RESIZED" == true ]] && draw_full_ui_frame
+
+    local current_index=$(mpv_get_property "playlist-pos"); [[ "$current_index" == "null" ]] && current_index=-1
+    local paused=$(mpv_get_property "pause"); local pos_s=$(mpv_get_property "playback-time"); local dur_s=$(mpv_get_property "duration")
+    
+    local width=$(tput cols); local height=$(tput lines)
+
+    local title=""; local artist="";
+    if (( current_index >= 0 )); then
+        title="${C_GREEN}${C_BOLD}${PLAYLIST_TITLES[$current_index]}"
+        artist="${C_GRAY}by ${PLAYLIST_UPLOADS[$current_index]}"
+    fi
+    tput cup 3 1; echo -en "$title"; tput el
+    tput cup 4 1; echo -en "$artist"; tput el
+    
+    local pos_str="--:--" dur_str="--:--"
+    local bar_w=$((width - 18)); local bar; bar=$(printf "%${bar_w}s" | tr ' ' "$PROG_EMPTY")
+    if [[ "$pos_s" != "null" && "$dur_s" != "null" && ${dur_s%.*} -gt 0 ]]; then
+        pos_str=$(printf "%02d:%02d" $(( ${pos_s%.*} / 60 )) $(( ${pos_s%.*} % 60 )))
+        dur_str=$(printf "%02d:%02d" $(( ${dur_s%.*} / 60 )) $(( ${dur_s%.*} % 60 )))
+        local percent=$(( ${pos_s%.*} * 100 / ${dur_s%.*} )); local filled_w=$(( bar_w * percent / 100 ))
+        bar=$(printf "%${filled_w}s" | tr ' ' "$PROG_FILLED")$(printf "%$((bar_w - filled_w))s" | tr ' ' "$PROG_EMPTY")
+    fi
+    local status_icon=$([[ "$paused" == "false" ]] && echo -e "$C_GREEN$ICON_PLAY" || echo -e "$C_YELLOW$ICON_PAUSE")
+    local repeat_status;
+    case $REPEAT_STATE in
+        0) repeat_status=" ${C_GRAY}(r)";;
+        1) repeat_status=" ${C_GREEN}(R)";;
+        2) repeat_status=" ${C_CYAN}(1)";;
+    esac
+    tput cup 6 1; echo -en "$status_icon $pos_str ${C_GREEN}[${bar}]${C_RESET} $dur_str$repeat_status"; tput el
+
+    local list_start_y=9; local list_h=$((height - list_start_y - 2)); local start_index=0
+    if (( current_index > list_start_y + list_h - 4 )); then start_index=$((current_index - 3)); fi
+    
+    for i in $(seq 0 $((list_h - 1))); do
+        local y_pos=$((list_start_y + i)); local playlist_index=$((start_index + i)); local line=""
+        if (( playlist_index < ${#PLAYLIST_IDS[@]} )); then
+            local display_title="${PLAYLIST_TITLES[$playlist_index]}"
+            if [[ $playlist_index -eq $current_index ]]; then line="${C_INVERSE}  ▶ ${display_title}  "
+            else line="${C_GRAY}    ${display_title}"; fi
+        fi
+        tput cup $y_pos 1; echo -en "${line:0:$((width-1))}"; tput el
+    done
+}
+
+# --- PLAYLIST MANAGEMENT ---
+add_to_playlist() {
+    tput cnorm; tput cup $(tput lines) 0; tput el; read -r -p "${ICON_SEARCH} Add to queue: " query; tput civis
+    [[ -z "$query" ]] && return 1; local search_term="$query"; if [[ "$PREFER_TOPIC_CHANNELS" = true ]]; then search_term+=" topic"; fi
+    local selections; selections=$(yt-dlp --flat-playlist --dump-json "ytsearch${SEARCH_COUNT}:${search_term}" 2>/dev/null | \
+        jq -r 'select(.id != null) | "\(.uploader // "N/A") - \(.title) | \(.id)"' | \
+        fzf --reverse --height=50% --multi --prompt="Add to Queue > " --header="[Tab] to select, [Enter] to add")
+    [[ -z "$selections" ]] && return 1
+    while IFS= read -r line; do
+        PLAYLIST_IDS+=("$(echo "$line" | awk -F ' | ' '{print $NF}')"); PLAYLIST_TITLES+=("$(echo "$line" | sed -e 's/.* - //' -e 's/ | .*//')")
+        PLAYLIST_UPLOADS+=("$(echo "$line" | sed 's/ - .*//')"); local url="https://www.youtube.com/watch?v=${PLAYLIST_IDS[-1]}"
+        mpv_command "{\"command\": [\"loadfile\", \"$url\", \"append\"]}"
+    done <<< "$selections"; return 0
+}
+
+create_new_playlist() {
+    tput clear; tput cnorm; read -r -p "${ICON_SEARCH} Search YouTube (or 'exit'): " query
+    [[ "$query" == "exit" || -z "$query" ]] && return 1; local search_term="$query"; if [[ "$PREFER_TOPIC_CHANNELS" = true ]]; then search_term+=" topic"; fi
+    local selections; selections=$(yt-dlp --flat-playlist --dump-json "ytsearch${SEARCH_COUNT}:${search_term}" 2>/dev/null | \
+        jq -r 'select(.id != null) | "\(.uploader // "N/A") - \(.title) | \(.id)"' | \
+        fzf --reverse --height=80% --multi --prompt="Playlist Builder > " --header="[Tab] to select, [Enter] to confirm")
+    [[ -z "$selections" ]] && return 1
+    mpv_command '{ "command": ["playlist-clear"] }'; PLAYLIST_IDS=(); PLAYLIST_TITLES=(); PLAYLIST_UPLOADS=()
+    while IFS= read -r line; do
+        PLAYLIST_IDS+=("$(echo "$line" | awk -F ' | ' '{print $NF}')"); PLAYLIST_TITLES+=("$(echo "$line" | sed -e 's/.* - //' -e 's/ | .*//')")
+        PLAYLIST_UPLOADS+=("$(echo "$line" | sed 's/ - .*//')"); local url="https://www.youtube.com/watch?v=${PLAYLIST_IDS[-1]}"
+        mpv_command "{\"command\": [\"loadfile\", \"$url\", \"append\"]}"
+    done <<< "$selections"; mpv_command '{ "command": ["set_property", "playlist-pos", 0] }'; return 0
+}
+
+# --- MAIN EXECUTION ---
+trap cleanup EXIT INT TERM; trap 'RESIZED=true' WINCH
+mpv --no-video --vo=null --script="${MPRIS_PATH}" --input-ipc-server="$IPC_SOCKET" --idle=yes --force-window=no --loop-playlist=inf </dev/null >/dev/null 2>&1 &
+until [ -S "$IPC_SOCKET" ]; do sleep 0.1; done
+
+create_new_playlist || cleanup
+
+while true; do
+    update_tui
+    stty -echo; read -rsn1 -t 0.5 key; stty echo
+    if [[ "$key" == $'\x1b' ]]; then read -rsn2 -t 0.01 subkey; key+="$subkey"; fi
+    case "$key" in
+        'p'|' ') mpv_command '{ "command": ["cycle", "pause"] }' ;;
+        'n') mpv_command '{ "command": ["playlist-next"] }' ;; 'b') mpv_command '{ "command": ["playlist-prev"] }' ;;
+        'r') REPEAT_STATE=$(( (REPEAT_STATE + 1) % 3 ));
+             case $REPEAT_STATE in
+                0) mpv_command '{ "command": ["set_property", "loop-playlist", "no"] }'; mpv_command '{ "command": ["set_property", "loop-file", "no"] }';;
+                1) mpv_command '{ "command": ["set_property", "loop-playlist", "inf"] }'; mpv_command '{ "command": ["set_property", "loop-file", "no"] }';;
+                2) mpv_command '{ "command": ["set_property", "loop-playlist", "no"] }'; mpv_command '{ "command": ["set_property", "loop-file", "inf"] }';;
+             esac ;;
+        'a') if add_to_playlist; then RESIZED=true; fi ;;
+        '/') if create_new_playlist; then RESIZED=true; fi ;;
+        '+'|'=') mpv_command '{ "command": ["add", "volume", 2] }' ;; '-':) mpv_command '{ "command": ["add", "volume", -2] }' ;;
+        '>'|$'\x1b[C') mpv_command '{ "command": ["seek", "5"] }' ;; '<'|$'\x1b[D') mpv_command '{ "command": ["seek", -5"] }' ;;
+        'q') cleanup ;;
+    esac
+done

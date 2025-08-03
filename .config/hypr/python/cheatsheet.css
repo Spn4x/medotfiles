@@ -1,10 +1,10 @@
 /* Cheatsheet Template for Wallust */
 
 /* --- Wallust Color Placeholders --- */
-@define-color background #302E2B;
-@define-color foreground #DDDED6;
-@define-color accent #70704C;
-@define-color surface #55524F;
+@define-color background #0F1214;
+@define-color foreground #EBE6E6;
+@define-color accent #966166;
+@define-color surface #383A3C;
 
 /* --- Main Styles --- */
 window {

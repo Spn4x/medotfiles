@@ -3,44 +3,44 @@
 /* We are using custom names and assigning Wallust colors to them. */
 
 /* --- Custom Name Definitions Mapped to Wallust Placeholders --- */
-@define-color custom-primary #DDDED6;         /* Main text */
-@define-color custom-secondary #C6C7BC;           /* Sub-text (Wallust's light gray/white) */
-@define-color custom-background #302E2B;       /* Main bar background */
-@define-color custom-surface #55524F;            /* Module background (Wallust's darkest gray/black) */
-@define-color custom-border #8B8B83;             /* General border (Wallust's medium gray) */
-@define-color custom-accent #70704C;             /* Primary accent (Wallust's blue) */
-@define-color custom-highlight #3A4530;            /* Highlight/Error (Wallust's red) */
+@define-color custom-primary #EBE6E6;         /* Main text */
+@define-color custom-secondary #DBD3D3;           /* Sub-text (Wallust's light gray/white) */
+@define-color custom-background #0F1214;       /* Main bar background */
+@define-color custom-surface #383A3C;            /* Module background (Wallust's darkest gray/black) */
+@define-color custom-border #999394;             /* General border (Wallust's medium gray) */
+@define-color custom-accent #966166;             /* Primary accent (Wallust's blue) */
+@define-color custom-highlight #02141B;            /* Highlight/Error (Wallust's red) */
 
 /* Specific hardcoded colors from your old theme, now mapped to Wallust placeholders */
-@define-color battery-warning-color #6B5333;
-@define-color battery-charging-color #9EA089;
-@define-color backlight-color #6B5333;
-@define-color network-color #70704C;
-@define-color network-hover-color #70704C;
-@define-color bluetooth-color #9EA089;
-@define-color bluetooth-hover-color #70704C;
+@define-color battery-warning-color #4A4E54;
+@define-color battery-charging-color #C7B7B8;
+@define-color backlight-color #4A4E54;
+@define-color network-color #966166;
+@define-color network-hover-color #966166;
+@define-color bluetooth-color #C7B7B8;
+@define-color bluetooth-hover-color #966166;
 /* --- End of Custom Name Definitions --- */
 
 /* Wallust's full palette still defined for flexibility, though not directly used by name below if sticking to custom names */
-@define-color background #302E2B;
-@define-color foreground #DDDED6;
-@define-color cursor #A58A7E;
-@define-color color0 #55524F;
-@define-color color1 #3A4530;
-@define-color color2 #6D3626;
-@define-color color3 #6B5333;
-@define-color color4 #70704C;
-@define-color color5 #9B8931;
-@define-color color6 #9EA089;
-@define-color color7 #C6C7BC;
-@define-color color8 #8B8B83;
-@define-color color9 #3A4530;
-@define-color color10 #6D3626;
-@define-color color11 #6B5333;
-@define-color color12 #70704C;
-@define-color color13 #9B8931;
-@define-color color14 #9EA089;
-@define-color color15 #C6C7BC;
+@define-color background #0F1214;
+@define-color foreground #EBE6E6;
+@define-color cursor #8C8084;
+@define-color color0 #383A3C;
+@define-color color1 #02141B;
+@define-color color2 #2D1A22;
+@define-color color3 #4A4E54;
+@define-color color4 #966166;
+@define-color color5 #7A858B;
+@define-color color6 #C7B7B8;
+@define-color color7 #DBD3D3;
+@define-color color8 #999394;
+@define-color color9 #02141B;
+@define-color color10 #2D1A22;
+@define-color color11 #4A4E54;
+@define-color color12 #966166;
+@define-color color13 #7A858B;
+@define-color color14 #C7B7B8;
+@define-color color15 #DBD3D3;
 @define-color transparent rgba(0, 0, 0, 0);
 
 /* --- Styles using your custom color names --- */
