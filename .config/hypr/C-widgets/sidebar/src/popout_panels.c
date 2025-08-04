@@ -43,10 +43,7 @@ static void on_password_dialog_response(GObject *source, GAsyncResult *result, g
 
 static void on_initial_volume_ready(GObject *s, GAsyncResult *res, gpointer d);
 static void on_volume_changed(GtkRange *r, gpointer d);
-static void on_initial_volume_ready(GObject *s, GAsyncResult *res, gpointer d);
-static void on_volume_changed(GtkRange *r, gpointer d);
-static void on_get_default_sink_ready(GObject *s, GAsyncResult *res, gpointer d); // <-- ADD THIS
-static void on_sinks_ready(GObject *s, GAsyncResult *res, gpointer d);
+static void on_get_default_sink_ready(GObject *s, GAsyncResult *res, gpointer d);
 static void on_sinks_ready(GObject *s, GAsyncResult *res, gpointer d);
 static void on_sink_selected(GtkDropDown *dd, GParamSpec *p, gpointer d);
 static void on_sink_set_finished(GObject *s, GAsyncResult *res, gpointer d);
@@ -68,6 +65,7 @@ static void on_bt_connected_devices_ready(GObject *s, GAsyncResult *res, gpointe
 static void on_bt_panel_state_set(GtkSwitch *sw, gboolean state, gpointer d);
 static void on_bt_panel_status_ready(GObject *s, GAsyncResult *res, gpointer d);
 static void on_bt_panel_destroy(GtkWidget *widget, gpointer user_data);
+static void on_bt_action_finished(GObject *s, GAsyncResult *res, gpointer d);
 
 
 // --- Helper Functions ---
@@ -175,41 +173,33 @@ static void on_sinks_ready(GObject *s, GAsyncResult *res, gpointer d) {
     for (int i = 0; lines[i] != NULL; i++) {
         const char *line = lines[i];
 
-        // This is the C version of: awk '/Sinks:/, /Sources:/'
         if (strstr(line, "Sinks:")) {
             in_sinks_section = TRUE;
             continue;
         }
         if (in_sinks_section && strstr(line, "Sources:")) {
-            break; // We've reached the end of the sinks section
+            break; 
         }
         if (!in_sinks_section) {
             continue;
         }
-        // End of awk logic
-
-        // This is the C version of: grep -v 'Easy Effects Sink'
+        
         if (strstr(line, "Easy Effects Sink")) {
             continue;
         }
         
-        // This is the C version of: grep -E '[0-9]+\.'
-        // We look for the dot. If it's not there, it's not a device line.
         const char *dot = strchr(line, '.');
         if (!dot) {
             continue;
         }
 
-        // --- Now we have a valid line, parse it like the shell script ---
         gboolean is_default = (strstr(line, "*") != NULL);
 
-        // Get the ID (like `awk '{print $1}' | tr -d '.'`)
         const char *id_start = strpbrk(line, "0123456789");
-        if (!id_start) continue; // Should be impossible due to above check, but safe
+        if (!id_start) continue; 
         g_autofree gchar *id_str = g_strndup(id_start, dot - id_start);
         guint current_id = (guint)atoi(id_str);
 
-        // Get the name (like `sed ... | xargs`)
         const char *name_start = dot + 1;
         const char *name_end = strstr(name_start, "[vol:");
         
@@ -221,24 +211,21 @@ static void on_sinks_ready(GObject *s, GAsyncResult *res, gpointer d) {
         }
         gchar *clean_name = g_strstrip(temp_name);
         
-        // At this point, `clean_name` is our final, perfect device name.
-
         if (is_default) {
             default_idx = current_idx;
         }
 
         AudioSink *sink = g_new0(AudioSink, 1);
         sink->id = current_id;
-        sink->name = g_strdup(clean_name); // Use the final cleaned name
+        sink->name = g_strdup(clean_name);
         sinks = g_list_append(sinks, sink);
         gtk_string_list_append(model, sink->name);
         current_idx++;
         
-        g_free(temp_name); // Clean up the temporary string
+        g_free(temp_name);
     }
     g_strfreev(lines);
 
-    // Update the UI
     g_signal_handlers_block_by_func(dd, G_CALLBACK(on_sink_selected), NULL);
     gtk_drop_down_set_model(dd, G_LIST_MODEL(model));
     if (gtk_string_list_get_string(model, 0) != NULL) {
@@ -250,7 +237,6 @@ static void on_sinks_ready(GObject *s, GAsyncResult *res, gpointer d) {
 
 // --- Wi-Fi Callbacks ---
 
-// The user clicks a network in the list. This is the new entry point.
 static void on_wifi_connect_clicked(GtkButton *button, gpointer user_data) {
     WifiClickData *click_data = user_data;
     GtkWidget *win = gtk_widget_get_ancestor(GTK_WIDGET(button), GTK_TYPE_WINDOW);
@@ -262,39 +248,35 @@ static void on_wifi_connect_clicked(GtkButton *button, gpointer user_data) {
     
     g_print("Starting silent connection attempt for SSID: %s\n", click_data->ssid);
 
-    // Create the data structure that will live through the entire process.
     WifiAsyncData *async_data = g_new0(WifiAsyncData, 1);
     async_data->ssid = g_strdup(click_data->ssid);
-    async_data->password = NULL; // We start with no password.
+    async_data->password = NULL; 
     async_data->list_box = click_data->list_box;
     async_data->toast_overlay = ADW_TOAST_OVERLAY(g_object_get_data(G_OBJECT(win), "toast-overlay"));
     async_data->parent_window = win;
     async_data->attempt_number = 0;
     
-    // Start the silent connection state machine.
     try_next_wifi_step(async_data);
 }
 
-// The core state machine.
 static void try_next_wifi_step(WifiAsyncData *data) {
     g_autoptr(GError) error = NULL;
     GSubprocess *process = NULL;
-    // Fix: Moved process creation inside each case to avoid dangling pointers
     
     switch (data->attempt_number) {
-        case 0: { // Attempt 0: Try to bring an existing connection 'up'.
+        case 0: { 
             g_print("Wi-Fi Attempt 0: Trying 'nmcli connection up' for SSID '%s'\n", data->ssid);
             const gchar *argv[] = {"nmcli", "connection", "up", data->ssid, NULL};
             process = g_subprocess_newv(argv, G_SUBPROCESS_FLAGS_NONE, &error);
             break;
         }
-        case 1: { // Attempt 1: Delete any potentially broken existing connection profile.
+        case 1: { 
             g_print("Wi-Fi Attempt 1: Trying to delete existing profile for SSID '%s'\n", data->ssid);
             const gchar *argv[] = {"nmcli", "connection", "delete", data->ssid, NULL};
             process = g_subprocess_newv(argv, G_SUBPROCESS_FLAGS_NONE, &error);
             break;
         }
-        case 2: { // Attempt 2: Add a new connection profile.
+        case 2: {
             g_print("Wi-Fi Attempt 2: Adding new connection profile for SSID '%s'\n", data->ssid);
             if (data->password && *data->password) {
                 const gchar *argv[] = {
@@ -316,13 +298,13 @@ static void try_next_wifi_step(WifiAsyncData *data) {
             }
             break;
         }
-        case 3: { // Attempt 3: Explicitly bring up the newly created profile.
+        case 3: { 
             g_print("Wi-Fi Attempt 3: Bringing up new connection for SSID '%s'\n", data->ssid);
             const gchar *argv[] = {"nmcli", "connection", "up", data->ssid, NULL};
             process = g_subprocess_newv(argv, G_SUBPROCESS_FLAGS_NONE, &error);
             break;
         }
-        default: // All silent/automated attempts have failed.
+        default: 
             if (data->password) {
                  g_warning("All Wi-Fi connection methods failed for SSID '%s', even with password.\n", data->ssid);
                  adw_toast_overlay_add_toast(data->toast_overlay, adw_toast_new("Connection failed. Incorrect password?"));
@@ -333,7 +315,7 @@ static void try_next_wifi_step(WifiAsyncData *data) {
                 g_print("Silent attempts failed. Prompting for password for SSID: %s\n", data->ssid);
                 show_password_dialog(data);
             }
-            return; // Stop the state machine for now.
+            return;
     }
 
     if (error) {
@@ -345,15 +327,12 @@ static void try_next_wifi_step(WifiAsyncData *data) {
     g_subprocess_wait_check_async(process, NULL, (GAsyncReadyCallback)on_wifi_command_finished, data);
 }
 
-
-// This function is called after each command finishes.
 static void on_wifi_command_finished(GObject *source, GAsyncResult *res, gpointer user_data) {
     WifiAsyncData *data = user_data;
     g_autoptr(GError) error = NULL;
     gboolean success = g_subprocess_wait_check_finish(G_SUBPROCESS(source), res, &error);
 
     if (success) {
-        // Any successful 'up' is a final victory.
         if (data->attempt_number == 0 || data->attempt_number == 3) {
             g_print("Wi-Fi connection successful for SSID: %s\n", data->ssid);
             adw_toast_overlay_add_toast(data->toast_overlay, adw_toast_new_format("Connected to %s", data->ssid));
@@ -365,8 +344,6 @@ static void on_wifi_command_finished(GObject *source, GAsyncResult *res, gpointe
         }
     }
     
-    // Case 1: 'delete' (attempt 1) can fail, that's fine. Always proceed.
-    // Case 2: 'add' (attempt 2) MUST succeed to continue.
     if (data->attempt_number == 1 || (data->attempt_number == 2 && success)) {
         data->attempt_number++;
         try_next_wifi_step(data);
@@ -380,7 +357,6 @@ static void on_wifi_command_finished(GObject *source, GAsyncResult *res, gpointe
     try_next_wifi_step(data);
 }
 
-// This new function shows the password dialog as a last resort.
 static void show_password_dialog(WifiAsyncData *data) {
     AdwAlertDialog *dialog = ADW_ALERT_DIALOG(adw_alert_dialog_new("Connection Failed", NULL));
     
@@ -412,7 +388,6 @@ static void show_password_dialog(WifiAsyncData *data) {
     adw_alert_dialog_choose(dialog, GTK_WIDGET(data->parent_window), NULL, (GAsyncReadyCallback)on_password_dialog_response, data);
 }
 
-// This is called after the user responds to the password dialog.
 static void on_password_dialog_response(GObject *source, GAsyncResult *result, gpointer user_data) {
     AdwAlertDialog *dialog = ADW_ALERT_DIALOG(source);
     WifiAsyncData *data = user_data;
@@ -433,10 +408,9 @@ static void on_password_dialog_response(GObject *source, GAsyncResult *result, g
         g_print("Retrying connection with user-provided password.\n");
         g_free(data->password);
         data->password = g_strdup(password_text);
-        data->attempt_number = 1; // Restart the process, skipping the first 'up' attempt.
+        data->attempt_number = 1; 
         try_next_wifi_step(data);
     } else {
-        // User clicked "Cancel", so we clean up.
         g_print("Password dialog cancelled.\n");
         g_free(data->ssid);
         g_free(data->password);
@@ -450,7 +424,7 @@ static void on_wifi_scan_ready(GObject *source_object, GAsyncResult *res, gpoint
     const char *out = get_command_stdout(res);
     if (!out) return;
 
-    gchar *active_ssid = NULL;
+    g_autofree gchar *active_ssid = NULL;
     gchar **lines = g_strsplit(out, "\n", -1);
     for (int i = 0; lines[i]; i++) {
         if (g_str_has_prefix(lines[i], "yes:")) {
@@ -514,7 +488,6 @@ static void on_wifi_scan_ready(GObject *source_object, GAsyncResult *res, gpoint
         g_strfreev(parts);
     }
     g_strfreev(lines);
-    g_free(active_ssid);
 }
 
 static gboolean trigger_wifi_scan_refresh(gpointer user_data) {
@@ -552,31 +525,23 @@ static void free_bt_action_data(gpointer d, GClosure *closure) {
 }
 
 static void refresh_audio_panel_sinks(void) {
-    // Find the audio panel window if it exists
     GtkApplication *app = GTK_APPLICATION(g_application_get_default());
-    if (!app) return; // Safety check
+    if (!app) return;
 
     GList *windows = gtk_application_get_windows(app);
     for (GList *l = windows; l; l = l->next) {
         GtkWidget *win = l->data;
-        // We identify the audio panel by the "widgets-bundle" we stored on it.
         ControlWidgets *widgets = g_object_get_data(G_OBJECT(win), "widgets-bundle");
         if (widgets && GTK_IS_DROP_DOWN(widgets->output_selector)) {
             g_print("Audio panel found. Refreshing sinks.\n");
-            // Re-run the command to get the latest sinks and update the dropdown.
             execute_command_async("wpctl status", on_sinks_ready, widgets->output_selector);
-            break; // Found it, no need to keep searching
+            break;
         }
     }
-    // No need to free the list returned by gtk_application_get_windows
 }
 
 static void on_bt_action_finished(GObject *s, GAsyncResult *res, gpointer d) {
-    // First, trigger the standard refresh for the Bluetooth list.
     on_bt_list_needs_refresh(s, res, d);
-    
-    // Then, trigger the refresh for the audio panel's sinks.
-    // We add a small delay to give the system time to register the new audio sink.
     g_timeout_add(1000, (GSourceFunc)refresh_audio_panel_sinks, NULL);
 }
 
@@ -593,7 +558,7 @@ static void on_bt_disconnect_clicked(GtkButton *b, gpointer user_data) {
     BtActionData *data = user_data;
     char cmd[256];
     snprintf(cmd, sizeof(cmd), "bluetoothctl disconnect %s", data->mac_address);
-    execute_command_async(cmd, on_bt_action_finished, data->list_box); // <-- NEW LINE (use new callback)
+    execute_command_async(cmd, on_bt_action_finished, data->list_box);
 }
 
 static void on_bt_paired_devices_ready(GObject *s, GAsyncResult *res, gpointer d) {
@@ -687,12 +652,6 @@ GtkWidget* create_audio_panel(GtkApplication *app, GtkWidget *parent_window) {
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(parent_window));
     gtk_window_set_default_size(GTK_WINDOW(window), 250, -1);
-   // gtk_layer_init_for_window(GTK_WINDOW(window));
-   // gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_TOP);
-   // gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, TRUE);
-   // gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, TRUE);
-   // gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, MAIN_SIDEBAR_WIDTH);
-   // gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, top_margin); // MODIFIED
     GtkWidget *audio_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     gtk_widget_set_margin_start(audio_box, 10);
     gtk_widget_set_margin_end(audio_box, 10);
@@ -724,12 +683,6 @@ GtkWidget* create_wifi_panel(GtkApplication *app, GtkWidget *parent_window) {
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(parent_window));
     gtk_window_set_default_size(GTK_WINDOW(window), 280, 400);
-    //gtk_layer_init_for_window(GTK_WINDOW(window));
-    //gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_TOP);
-    //gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, TRUE);
-    //gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, TRUE);
-    //gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, MAIN_SIDEBAR_WIDTH);
-    //gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, top_margin); // MODIFIED
 
     AdwToastOverlay *toast_overlay = ADW_TOAST_OVERLAY(adw_toast_overlay_new());
     g_object_set_data(G_OBJECT(window), "toast-overlay", toast_overlay);
@@ -775,12 +728,6 @@ GtkWidget* create_bluetooth_panel(GtkApplication *app, GtkWidget *parent_window)
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(parent_window));
     gtk_window_set_default_size(GTK_WINDOW(window), 280, 400);
-    //gtk_layer_init_for_window(GTK_WINDOW(window));
-    //gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_TOP);
-    //gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, TRUE);
-    //gtk_layer_set_anchor(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, TRUE);
-    //gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_LEFT, MAIN_SIDEBAR_WIDTH);
-    //gtk_layer_set_margin(GTK_WINDOW(window), GTK_LAYER_SHELL_EDGE_TOP, top_margin); // MODIFIED
 
     GtkWidget *main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15);
     gtk_widget_set_margin_start(main_box, 10);

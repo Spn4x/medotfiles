@@ -106,3 +106,120 @@ entry.password:focus { border-color: @foreground; }
 .suggested-action { background-color: @accent; }
 .suggested-action:hover { background-color: alpha(@accent, 0.8); }
 .destructive-action { background-color: @warning; }
+
+
+
+/* ======================================== */
+/* === Transparent MPRIS Popout Styling === */
+/* ======================================== */
+
+/* 
+ * This makes the main window and its frame completely transparent, 
+ * removing any default background, border, or shadow from the theme.
+ */
+.mpris-popout {
+  border: 2px solid alpha(@accent, 0.9);
+  border-radius: 14px;
+    box-shadow: none;
+  color: none;
+
+}
+.mpris-frame {
+ font-family: @define-color-font-main, monospace;
+    background-color: alpha(@surface, 0.3);
+    color: @foreground;
+    
+     /* Explicitly removed as requested */
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+/* 
+ * Make the media control buttons transparent as well.
+ * We remove their background and borders.
+ */
+.mpris-controls-box button {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  /* Make the icons inside the buttons a light color for visibility */
+  color: #e0e0e0;
+}
+
+/* 
+ * Add some subtle feedback for when the user hovers over or clicks a button.
+ * This adds a very faint, translucent white background.
+ */
+.mpris-controls-box button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mpris-controls-box button:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 
+ * Style the text (Title and Artist).
+ * Since the background is transparent, the text needs to be a light color 
+ * to be readable against a typical desktop wallpaper.
+ */
+.mpris-info-box label {
+  color: #f0f0f0;
+  /* Add a subtle shadow to the text to make it pop and improve readability */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* 
+ * Target the larger "title" label specifically if you want it to be bolder.
+ * This uses the Adwaita style class ".title-4" that you already added in your C code.
+ */
+.mpris-info-box .title-4 {
+  font-weight: bold;
+}
+
+
+/* =================================== */
+/* === Synchronized Lyrics Styling === */
+/* =================================== */
+
+.lyrics-window {
+  background-color: rgba(20, 22, 25, 0.85);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lyrics-box {
+  /* Add some padding so text isn't against the edge */
+  margin: 20px;
+}
+
+.lyrics-label {
+  color: #999; /* Dim color for inactive lines */
+  font-size: 1.2em;
+  font-weight: bold;
+  opacity: 0.7;
+  /* Animate the change for a super smooth effect */
+  transition: all 0.3s ease-in-out;
+}
+
+.lyrics-label.active-lyric {
+  color: #FFF; /* Bright white for the active line */
+  font-size: 1.4em;
+  opacity: 1.0;
+  /* Make it pop with a text shadow */
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Style the new button on the MPRIS popout */
+.lyrics-toggle-button {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: #ccc;
+  font-size: 1.2em;
+}
+
+.lyrics-toggle-button:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}

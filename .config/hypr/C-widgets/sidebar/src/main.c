@@ -367,15 +367,13 @@ static GtkWidget* create_sidebar_content(AppState *state) {
     return state->main_content_box;
 }
 
-// --- only the 'activate' function is changed ---
-
 static void activate(GtkApplication *app, gpointer user_data) {
     (void)user_data; load_css(); AppState *state = g_new0(AppState, 1);
     state->app = app;
     g_object_set_data_full(G_OBJECT(app), "app-state", state, (GDestroyNotify)g_free);
     g_signal_connect(app, "shutdown", G_CALLBACK(cleanup), state);
 
-       state->idle_mode_enabled = load_idle_mode_setting();
+    state->idle_mode_enabled = load_idle_mode_setting();
     state->current_sidebar_width = 66; // Initial width for the dock view.
 
     state->fft_in = fftw_alloc_real(SAMPLES);
