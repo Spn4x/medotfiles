@@ -1,3 +1,222 @@
+===== src/lyrics.c =====
+// src/lyrics.c
+
+#include "lyrics.h"
+#include "mpris.h" // Include mpris.h for the full MprisPopoutState definition
+#include <glib/gregex.h>
+#include <graphene.h>
+
+// FIX: Define the CLAMP macro
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
+static void free_lyric_line(gpointer data) {
+    LyricLine *line = data;
+    if (!line) return;
+    g_free(line->line_text);
+    g_free(line);
+}
+
+// NOTE: The LYRICS_SYNC_OFFSET_MS macro has been moved to mpris.c, where the sync logic now resides.
+void lyrics_view_sync_to_position(MprisPopoutState* state, gint64 position_us) {
+    if (!state || !state->lyrics_view_state) return;
+    LyricsView *view = state->lyrics_view_state;
+
+    if (!view->lyric_lines || g_list_length(view->lyric_lines) == 0) {
+        return;
+    }
+
+    // The position adjustment now happens in mpris.c before this function is called.
+    guint64 pos_ms = position_us / 1000;
+
+    int new_line_index = -1;
+    for (GList *l = g_list_last(view->lyric_lines); l != NULL; l = l->prev) {
+        LyricLine *current_line = l->data;
+        if (pos_ms >= current_line->timestamp_ms) {
+            new_line_index = g_list_position(view->lyric_lines, l);
+            break;
+        }
+    }
+
+    if (new_line_index != view->current_line_index) {
+        LyricLine *new_lyric = (new_line_index >= 0) ? g_list_nth_data(view->lyric_lines, new_line_index) : NULL;
+        g_print("[SYNC] State Change! Pos: %.2fs. Old Index: %d, New Index: %d. New Lyric: \"%s\"\n",
+                (double)pos_ms / 1000.0,
+                view->current_line_index,
+                new_line_index,
+                (new_lyric && new_lyric->line_text) ? new_lyric->line_text : "---");
+
+        if (view->current_line_index >= 0) {
+            GList *old_link = g_list_nth(view->lyric_lines, view->current_line_index);
+            if (old_link && old_link->data) {
+                GtkWidget *label = ((LyricLine*)old_link->data)->label;
+                if (GTK_IS_WIDGET(label)) gtk_widget_remove_css_class(label, "active-lyric");
+            }
+        }
+
+        if (new_line_index >= 0) {
+             GList *new_link = g_list_nth(view->lyric_lines, new_line_index);
+             if (new_link && new_link->data) {
+                GtkWidget *active_label = ((LyricLine*)new_link->data)->label;
+                gtk_widget_add_css_class(active_label, "active-lyric");
+
+                GtkAdjustment *v_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view->scrolled_window));
+                graphene_rect_t bounds;
+                // Explicitly ignore the return value to silence the warning.
+                (void)gtk_widget_compute_bounds(active_label, gtk_widget_get_parent(active_label), &bounds);
+                double target_value = bounds.origin.y - (gtk_adjustment_get_page_size(v_adj) / 2.0) + (bounds.size.height / 2.0);
+                target_value = CLAMP(target_value, gtk_adjustment_get_lower(v_adj), gtk_adjustment_get_upper(v_adj) - gtk_adjustment_get_page_size(v_adj));
+                gtk_adjustment_set_value(v_adj, target_value);
+             }
+        }
+        view->current_line_index = new_line_index;
+    }
+}
+
+GtkWidget* create_lyrics_view(LyricsView **view_out) {
+    LyricsView *view = g_new0(LyricsView, 1);
+    view->current_line_index = -1;
+    view->scrolled_window = gtk_scrolled_window_new();
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    gtk_widget_set_vexpand(view->scrolled_window, TRUE);
+    view->lyrics_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_widget_add_css_class(view->lyrics_box, "lyrics-box");
+    gtk_widget_set_valign(view->lyrics_box, GTK_ALIGN_CENTER);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(view->scrolled_window), view->lyrics_box);
+    *view_out = view;
+    return view->scrolled_window;
+}
+
+void destroy_lyrics_view(LyricsView *view) {
+    if (!view) return;
+    g_list_free_full(view->lyric_lines, free_lyric_line);
+    g_free(view);
+}
+
+void clear_lyrics_display(LyricsView *view) {
+    if (!view) return;
+    GtkWidget *child;
+    while ((child = gtk_widget_get_first_child(view->lyrics_box))) {
+        gtk_box_remove(GTK_BOX(view->lyrics_box), child);
+    }
+}
+
+void parse_and_populate_lyrics(LyricsView *view, const gchar *lrc_data) {
+    if (!view) return;
+    clear_lyrics_display(view);
+    if (view->lyric_lines) {
+        g_list_free_full(view->lyric_lines, free_lyric_line);
+        view->lyric_lines = NULL;
+    }
+    view->current_line_index = -1;
+
+    if (lrc_data == NULL) {
+        GtkWidget *spinner = gtk_spinner_new();
+        gtk_spinner_start(GTK_SPINNER(spinner));
+        gtk_widget_set_halign(spinner, GTK_ALIGN_CENTER);
+        gtk_widget_set_valign(spinner, GTK_ALIGN_CENTER);
+        gtk_widget_set_vexpand(spinner, TRUE);
+        gtk_box_append(GTK_BOX(view->lyrics_box), spinner);
+        return;
+    }
+
+    g_autofree gchar **lines = g_strsplit(lrc_data, "\n", -1);
+    g_autoptr(GRegex) regex = g_regex_new("\\[([0-9]{2}):([0-9]{2})[.:]([0-9]{2,3})\\](.*)", 0, 0, NULL);
+    for (int i = 0; lines && lines[i] != NULL; i++) {
+        g_autoptr(GMatchInfo) match_info = NULL;
+        if (g_regex_match(regex, lines[i], 0, &match_info)) {
+            g_autofree gchar *min_str = g_match_info_fetch(match_info, 1);
+            g_autofree gchar *sec_str = g_match_info_fetch(match_info, 2);
+            g_autofree gchar *cs_str = g_match_info_fetch(match_info, 3);
+            g_autofree gchar *text = g_match_info_fetch(match_info, 4);
+            if (min_str && sec_str && cs_str && text) {
+                g_autofree gchar *trimmed_text = g_strstrip(g_strdup(text));
+                if (strlen(trimmed_text) == 0) continue;
+                LyricLine *line = g_new0(LyricLine, 1);
+                guint64 ms_val = (guint64)atoi(cs_str);
+                if (strlen(cs_str) == 2) ms_val *= 10;
+                line->timestamp_ms = (guint64)atoi(min_str) * 60000 + (guint64)atoi(sec_str) * 1000 + ms_val;
+                line->line_text = g_strdup(trimmed_text);
+                line->label = gtk_label_new(line->line_text);
+                gtk_widget_add_css_class(line->label, "lyrics-label");
+                gtk_label_set_wrap(GTK_LABEL(line->label), TRUE);
+                gtk_label_set_wrap_mode(GTK_LABEL(line->label), PANGO_WRAP_WORD_CHAR);
+                // ALIGNMENT FIX: Ensure all lyrics are left-aligned.
+                gtk_label_set_xalign(GTK_LABEL(line->label), 0.0);
+                gtk_label_set_justify(GTK_LABEL(line->label), GTK_JUSTIFY_LEFT);
+                gtk_box_append(GTK_BOX(view->lyrics_box), line->label);
+                view->lyric_lines = g_list_append(view->lyric_lines, line);
+            }
+        }
+    }
+
+    if (g_list_length(view->lyric_lines) == 0) {
+        GtkWidget *label = gtk_label_new("No synchronized lyrics found for this track.");
+        gtk_label_set_wrap(GTK_LABEL(label), TRUE);
+        gtk_label_set_wrap_mode(GTK_LABEL(label), PANGO_WRAP_WORD_CHAR);
+        // ALIGNMENT FIX: Ensure message is left-aligned and justified.
+        gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+        gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+        gtk_widget_set_vexpand(label, TRUE);
+        gtk_widget_set_valign(label, GTK_ALIGN_CENTER);
+        gtk_box_append(GTK_BOX(view->lyrics_box), label);
+    }
+}===== src/utils.h =====
+// src/utils.h
+
+#ifndef UTILS_H
+#define UTILS_H
+
+#include <gio/gio.h>
+
+void execute_command_async(const char* command, GAsyncReadyCallback callback, gpointer user_data);
+
+// We only need stdout. The caller of this function receives ownership of the returned string.
+gchar* get_command_stdout(GAsyncResult *res);
+
+#endif===== src/mpris.h =====
+// src/mpris.h
+
+#ifndef MPRIS_H
+#define MPRIS_H
+
+#include <gtk/gtk.h>
+#include "lyrics.h"
+#include "utils.h"
+
+typedef struct _MprisPopoutState {
+    // This is now set by the caller (main.c) after creation.
+    GtkWindow *window;
+    GDBusProxy *player_proxy;
+    gchar *bus_name;
+
+    GtkImage *album_art_image;
+    GtkLabel *title_label;
+    GtkLabel *artist_label;
+    GtkButton *play_pause_button;
+    GtkButton *save_lyrics_button;
+    
+    GtkWidget *toast_label;
+
+    LyricsView *lyrics_view_state;
+    GCancellable *lyrics_cancellable;
+    gint64 current_lyrics_id;
+    gchar *current_track_signature;
+
+    guint next_lyric_timer_id;
+    guint resync_poll_timer_id;
+
+    gulong properties_changed_id;
+    gulong seeked_id;
+
+    gint64 current_sync_offset_ms;
+    GtkLabel *offset_label;
+} MprisPopoutState;
+
+// This function now creates a GtkBox widget, not a GtkWindow.
+// It returns the state via an output parameter.
+GtkWidget* create_mpris_view(const gchar *bus_name, MprisPopoutState **state_out);
+
+#endif // MPRIS_H===== src/mpris.c =====
 // src/mpris.c
 
 #include "mpris.h"
@@ -421,9 +640,6 @@ GtkWidget* create_mpris_view(const gchar *bus_name, MprisPopoutState **state_out
     state->artist_label = GTK_LABEL(gtk_label_new(""));
     gtk_widget_add_css_class(GTK_WIDGET(state->artist_label), "artist-label");
     gtk_label_set_xalign(state->artist_label, 0.0);
-    // FIX: Enable text wrapping for the artist label
-    gtk_label_set_wrap(state->artist_label, TRUE);
-    gtk_label_set_wrap_mode(state->artist_label, PANGO_WRAP_WORD_CHAR);
     gtk_box_append(GTK_BOX(text_box), GTK_WIDGET(state->title_label));
     gtk_box_append(GTK_BOX(text_box), GTK_WIDGET(state->artist_label));
     gtk_box_append(GTK_BOX(info_box), GTK_WIDGET(state->album_art_image));
@@ -493,4 +709,316 @@ GtkWidget* create_mpris_view(const gchar *bus_name, MprisPopoutState **state_out
     // Return the state struct via the output parameter
     *state_out = state;
     return root_box;
+}===== src/main.c =====
+// src/main.c
+
+#include <gtk/gtk.h>
+#include <gtk-layer-shell/gtk-layer-shell.h>
+#include "mpris.h"
+
+static const int PLAYER_VERTICAL_OFFSET = 100;
+static const int HORIZONTAL_OFFSET = -1;
+
+typedef struct {
+    GtkApplication *app;
+    GtkWidget *main_window;
+
+    // State for the currently displayed view
+    GtkWidget *current_view;
+    MprisPopoutState *mpris_state;
+
+    // List of active MPRIS players (bus names)
+    GList *mpris_players;
+
+    // DBus connection and watcher ID
+    GDBusConnection *dbus_connection;
+    guint name_watcher_id;
+
+    // CSS
+    GtkCssProvider *css_provider;
+    GFileMonitor *css_file_monitor;
+} AppState;
+
+// --- Forward Declarations ---
+static void update_view(AppState *state);
+static GtkWidget* create_default_view();
+
+static void on_mpris_name_appeared(const gchar *name, gpointer user_data) {
+    AppState *state = user_data;
+    if (g_list_find_custom(state->mpris_players, name, (GCompareFunc)g_strcmp0) == NULL) {
+        state->mpris_players = g_list_append(state->mpris_players, g_strdup(name));
+        update_view(state);
+    }
 }
+
+static void on_mpris_name_vanished(const gchar *name, gpointer user_data) {
+    AppState *state = user_data;
+    GList *link = g_list_find_custom(state->mpris_players, name, (GCompareFunc)g_strcmp0);
+    if (link) {
+        g_free(link->data);
+        state->mpris_players = g_list_delete_link(state->mpris_players, link);
+        update_view(state);
+    }
+}
+
+static void update_view(AppState *state) {
+    gboolean has_players = (state->mpris_players != NULL);
+
+    // Case 1: Players are active, but we are not showing the player view.
+    if (has_players && state->mpris_state == NULL) {
+        const gchar *bus_name = state->mpris_players->data;
+        g_print("Player detected (%s). Creating player view.\n", bus_name);
+
+        GtkWidget *new_view = create_mpris_view(bus_name, &state->mpris_state);
+        if (new_view) {
+            // Give the state a reference to the window it lives in.
+            state->mpris_state->window = GTK_WINDOW(state->main_window);
+            state->current_view = new_view;
+            gtk_window_set_child(GTK_WINDOW(state->main_window), state->current_view);
+        }
+    } 
+    // Case 2: No players are active, but we are showing the player view.
+    else if (!has_players && state->mpris_state != NULL) {
+        g_print("No active players. Reverting to default view.\n");
+        // The mpris_state and its view will be destroyed automatically because
+        // it was associated with the old widget via g_object_set_data_full.
+        // When gtk_window_set_child unparents it, it gets destroyed.
+        state->mpris_state = NULL; 
+        state->current_view = create_default_view();
+        gtk_window_set_child(GTK_WINDOW(state->main_window), state->current_view);
+    }
+}
+
+static void on_name_owner_changed(GDBusConnection *c, const gchar *s, const gchar *o, const gchar *i, const gchar *sig, GVariant *p, gpointer d) {
+    (void)c; (void)s; (void)o; (void)i; (void)sig;
+    const gchar *name, *old_owner, *new_owner;
+    g_variant_get(p, "(sss)", &name, &old_owner, &new_owner);
+    if (name && g_str_has_prefix(name, "org.mpris.MediaPlayer2.")) {
+        if (new_owner && *new_owner) { on_mpris_name_appeared(name, d); }
+        else { on_mpris_name_vanished(name, d); }
+    }
+}
+
+static void setup_mpris_watcher(AppState *state) {
+    g_autoptr(GError) error = NULL;
+    state->dbus_connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    if (error) { g_warning("DBus connection failed: %s", error->message); return; }
+
+    g_autoptr(GVariant) result = g_dbus_connection_call_sync(state->dbus_connection, "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", NULL, G_VARIANT_TYPE("(as)"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+    if (!error) {
+        g_autoptr(GVariantIter) iter;
+        g_variant_get(result, "(as)", &iter);
+        gchar *name;
+        while (g_variant_iter_loop(iter, "s", &name)) {
+            if (g_str_has_prefix(name, "org.mpris.MediaPlayer2.")) { on_mpris_name_appeared(name, state); }
+        }
+    } else { g_warning("DBus ListNames failed: %s", error->message); }
+    
+    state->name_watcher_id = g_dbus_connection_signal_subscribe(state->dbus_connection, "org.freedesktop.DBus", "org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus", NULL, G_DBUS_SIGNAL_FLAGS_NONE, on_name_owner_changed, state, NULL);
+    g_print("MPRIS watcher is active.\n");
+}
+
+static GtkWidget* create_default_view() {
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
+    gtk_widget_set_vexpand(box, TRUE);
+    gtk_widget_set_valign(box, GTK_ALIGN_CENTER);
+
+    GtkWidget *image = gtk_image_new_from_icon_name("audio-headphones-symbolic");
+    gtk_image_set_icon_size(GTK_IMAGE(image), GTK_ICON_SIZE_LARGE);
+    gtk_image_set_pixel_size(GTK_IMAGE(image), 96);
+    gtk_widget_add_css_class(image, "artist-label"); // Re-use style for grey color
+
+    GtkWidget *label = gtk_label_new("No active player");
+    gtk_widget_add_css_class(label, "title-label");
+
+    gtk_box_append(GTK_BOX(box), image);
+    gtk_box_append(GTK_BOX(box), label);
+
+    return box;
+}
+
+static gboolean load_css(gpointer user_data) {
+    AppState *state = user_data;
+    GdkDisplay *display = gdk_display_get_default();
+    if (state->css_provider) {
+        gtk_style_context_remove_provider_for_display(display, GTK_STYLE_PROVIDER(state->css_provider));
+    }
+    state->css_provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(state->css_provider, "../src/style.css");
+    gtk_style_context_add_provider_for_display(display, GTK_STYLE_PROVIDER(state->css_provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+    return G_SOURCE_REMOVE;
+}
+
+static void on_css_changed(GFileMonitor *monitor, GFile *file, GFile *other, GFileMonitorEvent event, gpointer user_data) {
+    (void)monitor; (void)file; (void)other;
+    if (event == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT || event == G_FILE_MONITOR_EVENT_CHANGED) {
+        g_idle_add(load_css, user_data);
+    }
+}
+static void setup_css_hot_reload(AppState *state) {
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GFile) css_file = g_file_new_for_path("../src/style.css");
+    state->css_file_monitor = g_file_monitor_file(css_file, G_FILE_MONITOR_NONE, NULL, &error);
+    if(error) { g_warning("CSS monitor failed: %s", error->message); return; }
+    g_signal_connect(state->css_file_monitor, "changed", G_CALLBACK(on_css_changed), state);
+}
+
+static void cleanup(GApplication *app, gpointer user_data) {
+    (void)app;
+    AppState *state = (AppState*)user_data;
+    if (state->name_watcher_id > 0) { g_dbus_connection_signal_unsubscribe(state->dbus_connection, state->name_watcher_id); }
+    g_clear_object(&state->dbus_connection);
+    g_list_free_full(state->mpris_players, g_free);
+    if (state->css_file_monitor) { g_file_monitor_cancel(state->css_file_monitor); g_clear_object(&state->css_file_monitor); }
+    g_print("Cleanup complete.\n");
+}
+
+static void activate(GtkApplication *app, gpointer user_data) {
+    (void)user_data;
+    
+    AppState *state = g_new0(AppState, 1);
+    state->app = app;
+    g_object_set_data_full(G_OBJECT(app), "app-state", state, (GDestroyNotify)g_free);
+    g_signal_connect(app, "shutdown", G_CALLBACK(cleanup), state);
+
+    state->main_window = gtk_application_window_new(app);
+    gtk_window_set_default_size(GTK_WINDOW(state->main_window), 300, 450);
+    gtk_widget_add_css_class(state->main_window, "mpris-popout");
+    
+    gtk_layer_init_for_window(GTK_WINDOW(state->main_window));
+    gtk_layer_set_layer(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_LAYER_TOP);
+    gtk_layer_set_anchor(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_EDGE_LEFT, TRUE);
+    gtk_layer_set_anchor(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_EDGE_TOP, TRUE);
+    gtk_layer_set_margin(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_EDGE_LEFT, HORIZONTAL_OFFSET);
+    gtk_layer_set_margin(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_EDGE_TOP, PLAYER_VERTICAL_OFFSET);
+    gtk_layer_set_keyboard_mode(GTK_WINDOW(state->main_window), GTK_LAYER_SHELL_KEYBOARD_MODE_ON_DEMAND);
+    
+    // Start with the default view
+    state->current_view = create_default_view();
+    gtk_window_set_child(GTK_WINDOW(state->main_window), state->current_view);
+    
+    gtk_window_present(GTK_WINDOW(state->main_window));
+    
+    g_idle_add(load_css, state);
+    setup_css_hot_reload(state);
+    setup_mpris_watcher(state);
+
+    g_print("MPRIS Lyrics Viewer started.\n");
+}
+
+int main(int argc, char **argv) {
+    GtkApplication *app = gtk_application_new("com.spn4x.mprislyrics", G_APPLICATION_DEFAULT_FLAGS);
+    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+    int status = g_application_run(G_APPLICATION(app), argc, argv);
+    g_object_unref(app);
+    return status;
+}===== src/utils.c =====
+// src/utils.c
+
+#include "utils.h"
+#include <stdio.h>
+
+typedef struct {
+    GTask *task;
+    char *command;
+} CommandData;
+
+static void on_command_finished(GObject *source_object, GAsyncResult *res, gpointer user_data) {
+    CommandData *data = (CommandData*)user_data;
+    GSubprocess *proc = G_SUBPROCESS(source_object);
+    g_autoptr(GError) error = NULL;
+    gchar *stdout_buffer = NULL;
+    gchar *stderr_buffer = NULL;
+
+    g_subprocess_communicate_utf8_finish(proc, res, &stdout_buffer, &stderr_buffer, &error);
+    
+    if (error) {
+        g_warning("COMMAND FAILED: \"%s\"\n--- ERROR ---\n%s\n-------------\n", data->command, error->message);
+        g_task_return_error(data->task, error);
+    } else {
+        // This is the robust pattern. We return ownership of stdout_buffer to the task.
+        // The task will call g_free on it if nothing else claims it.
+        g_task_return_pointer(data->task, stdout_buffer, g_free);
+    }
+    
+    // We are done with stderr, free it immediately.
+    g_free(stderr_buffer);
+    
+    g_object_unref(data->task);
+    g_free(data->command);
+    g_free(data);
+}
+
+void execute_command_async(const char* command, GAsyncReadyCallback callback, gpointer user_data) {
+    g_autoptr(GError) error = NULL;
+    gchar **argv = NULL;
+    if (!g_shell_parse_argv(command, NULL, &argv, &error)) {
+        g_warning("Error parsing command: %s", error->message);
+        g_error_free(error);
+        return;
+    }
+
+    GSubprocess *proc = g_subprocess_newv((const gchar * const *)argv,
+                                          G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE,
+                                          &error);
+    g_strfreev(argv);
+    if (error) {
+        g_warning("Error creating subprocess: %s", error->message);
+        g_error_free(error);
+        return;
+    }
+    
+    CommandData *data = g_new(CommandData, 1);
+    data->task = g_task_new(proc, NULL, callback, user_data);
+    data->command = g_strdup(command);
+    
+    g_subprocess_communicate_utf8_async(proc, NULL, NULL, on_command_finished, data);
+}
+
+// This function now correctly propagates ownership of the string.
+gchar* get_command_stdout(GAsyncResult *res) {
+    g_autoptr(GError) error = NULL;
+    // This transfers ownership of the string from the task to us.
+    gchar *stdout_str = g_task_propagate_pointer(G_TASK(res), &error);
+    if (error) {
+        g_warning("Could not get command stdout: %s", error->message);
+        g_clear_pointer(&stdout_str, g_free); // Free the string if an error occurred.
+        return NULL;
+    }
+    return stdout_str; // The caller now owns the string.
+}===== src/lyrics.h =====
+// src/lyrics.h
+
+#ifndef LYRICS_H
+#define LYRICS_H
+
+#include <gtk/gtk.h>
+#include <gio/gio.h>
+
+// Forward declare the MprisPopoutState struct.
+// This tells the compiler that the type exists without needing its full definition,
+// breaking the circular include chain.
+typedef struct _MprisPopoutState MprisPopoutState;
+
+typedef struct {
+    guint64 timestamp_ms;
+    gchar *line_text;
+    GtkWidget *label;
+} LyricLine;
+
+typedef struct {
+    GtkWidget *scrolled_window;
+    GtkWidget *lyrics_box;
+    GList *lyric_lines;
+    gint current_line_index;
+} LyricsView;
+
+GtkWidget* create_lyrics_view(LyricsView **view_out);
+void destroy_lyrics_view(LyricsView *view);
+void clear_lyrics_display(LyricsView *view);
+void parse_and_populate_lyrics(LyricsView *view, const gchar *lrc_data);
+
+// The function signature remains the same, using the now-known forward-declared type.
+void lyrics_view_sync_to_position(MprisPopoutState* state, gint64 position_us);
+
+#endif // LYRICS_H
