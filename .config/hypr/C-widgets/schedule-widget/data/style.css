@@ -1,0 +1,139 @@
+/* --- Color Palette Definition --- */
+@define-color background #0F1214;
+@define-color foreground #EBE6E6;
+@define-color accent     #966166;
+@define-color surface    #383A3C;
+@define-color warning    #02141B;
+
+/* ======================================= */
+/* ---        Main Widget Theme        --- */
+/* ======================================= */
+window {
+  background: transparent;
+}
+
+#main-container {
+    background-color: alpha(@background, 0.3)
+    ; /* Using your defined background */
+    color: @foreground;                       /* Using your defined text color */
+    border-radius: 12px;
+    border: 2px solid alpha(@accent, 0.8);    /* Using your defined accent color */
+    padding: 10px;
+}
+
+grid {
+    margin: 10px;
+}
+
+/* Day and Time Headers */
+label.header {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+button.header {
+    color: @foreground;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* ======================================= */
+/* ---         Button Styling          --- */
+/* ======================================= */
+
+/* General style for empty event buttons in the grid */
+button {
+    background: alpha(@surface, 0.3);
+    border: none;
+    border-radius: 6px;
+    min-height: 40px;
+    margin: 2px;
+    color: @foreground; /* Ensure text is readable */
+}
+
+button:hover {
+    background-color: alpha(@foreground, 0.2); /* Use foreground for hover highlight */
+}
+
+/* Event buttons with content */
+button.event-filled {
+    background-color: @accent;
+    font-weight: bold;
+}
+
+/* Red buttons for destructive actions */
+button.destructive-action {
+    background-color: @destructive;
+}
+
+button.destructive-action:hover {
+    background-color: darker(@destructive); /* Automatically generate a darker hover color */
+}
+
+/* ======================================= */
+/* ---        Popover Styling          --- */
+/* ======================================= */
+
+popover {
+  background-color: alpha(@background, 0.98);
+  border: 1px solid alpha(@foreground, 0.2);
+  border-radius: 8px;
+  padding: 5px;
+}
+
+popover > box {
+    min-width: 300px;
+}
+
+/* Entry fields and text views inside popovers */
+popover entry,
+popover textview {
+    background-color: alpha(@background, 0.5);
+    color: @foreground;
+    border: 1px solid @surface;
+}
+
+/* All buttons inside a popover */
+popover button {
+  font-size: 0.9em;
+  padding: 4px 12px;
+  min-height: 0;
+}
+
+/* Green "Save" or "Add" buttons, using the theme's accent color */
+popover button.suggested-action {
+  background-color: @accent;
+}
+popover button.suggested-action:hover {
+  background-color: darker(@accent);
+}
+
+/* ======================================= */
+/* ---    Dropdown (Picker) Styling    --- */
+/* ======================================= */
+
+popover dropdown {
+  background-color: alpha(@background, 0.5);
+  border: 1px solid @surface;
+}
+
+/* The popup menu that appears when you click a dropdown */
+popover.menu {
+  padding: 4px;
+  background-color: @background;
+  border: 1px solid @surface;
+}
+
+/* The individual text items in the dropdown's list */
+popover.menu listview label {
+  color: @foreground;
+  padding: 2px 8px;
+}
+
+/* The highlighted/selected item in the dropdown's list */
+popover.menu listview listitem:hover,
+popover.menu listview listitem:selected {
+  background-color: alpha(@accent, 0.8);
+  border-radius: 4px;
+}

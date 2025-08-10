@@ -1,0 +1,77 @@
+// ~/.config/waybar/config.jsonc
+{
+    // -------------------------------------------------------------------------
+    // Global settings
+    // -------------------------------------------------------------------------
+    "layer": "top", // Set Waybar to be on top of other windows
+    "position": "top", // "top", "bottom", "left", "right"
+    "height": 30, // Bar height in pixels
+
+    // -------------------------------------------------------------------------
+    // Modules
+    // -------------------------------------------------------------------------
+    "modules-left": [
+        "sway/workspaces", // Use "hyprland/workspaces" for Hyprland
+        "sway/mode"        // Remove this if you're not on Sway
+    ],
+    "modules-center": ["sway/window"], // Use "hyprland/window" for Hyprland
+    "modules-right": [
+        "pulseaudio",
+        "network",
+        "cpu",
+        "memory",
+        "clock",
+        "tray"
+    ],
+
+    // -------------------------------------------------------------------------
+    // Module-specific configurations
+    // -------------------------------------------------------------------------
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}: {icon}",
+        "format-icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "urgent": "",
+            "focused": "",
+            "default": ""
+        }
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10
+    },
+    "clock": {
+        "format": " {:%H:%M}",
+        "format-alt": " {:%A, %B %d, %Y}", // Shows date on hover
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "cpu": {
+        "format": " {usage}%",
+        "tooltip": true
+    },
+    "memory": {
+        "format": " {}%"
+    },
+    "network": {
+        "format-wifi": "  {essid} ({signalStrength}%)",
+        "format-ethernet": "󰈀 Connected",
+        "format-linked": "{ifname} (No IP)",
+        "format-disconnected": "Disconnected",
+        "format-alt": " {essid} ({ipaddr}/{cidr})",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "on-click": "nm-connection-editor" // Opens network manager GUI
+    },
+    "pulseaudio": {
+        "scroll-step": 5, // % change when scrolling
+        "format": "{volume}% {icon}",
+        "format-muted": " Muted",
+        "format-icons": {
+            "default": ["", ""] // Lower and higher volume icons
+        },
+        "on-click": "pavucontrol" // Opens PulseAudio volume control GUI
+    }
+}

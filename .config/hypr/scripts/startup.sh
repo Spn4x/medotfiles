@@ -37,9 +37,8 @@ echo "--- Launching UI elements and user applications ---"
 ironbar &
 nm-applet --indicator &
 blueman-applet &
-~/scripts/toggle-sidebar.sh &
-hypr-wellbeing -d &> /dev/null &
 python ~/.config/hypr/python/fetchapp/archbadge.py &
+systemctl --user restart mpris-watcher.service &
 
 # --------------------------------------------------------------------------------------
 # B. ENVIRONMENT & SYSTEM SERVICES

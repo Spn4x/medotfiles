@@ -83,19 +83,6 @@ $bt_battery = {
     on_scroll_up = "~/scripts/audio.sh prev"
 }
 
-    $music_player = {
-        type = "music"
-        class = "module module-music"
-        player_type = "mpris"
-        format = " "
-        icons.play = ""
-        icons.pause = ""
-        format_down = " " 
-        truncate = {
-            mode = "end"
-            max_length = 50
-        }
-    }
     
 
     $tray = {
@@ -112,7 +99,7 @@ $bt_battery = {
 
     $left_widgets = [ $workspaces  ]
     $center_widgets = [ $clock $sys_all  ]
-    $right_widgets = [ $backlight $volume $bt_battery $dnd ]
+    $right_widgets = [ $bt_battery $dnd ]
 
 }
 

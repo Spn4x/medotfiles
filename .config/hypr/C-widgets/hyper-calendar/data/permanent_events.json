@@ -1,0 +1,20 @@
+{
+  "01-01": [
+    {
+      "time": "all-day",
+      "title": "New Year's Day"
+    }
+  ],
+  "10-10": [
+    {
+      "time": "all-day",
+      "title": "My Birthday"
+    }
+  ],
+  "12-25": [
+    {
+      "time": "all-day",
+      "title": "Christmas Day"
+    }
+  ]
+}

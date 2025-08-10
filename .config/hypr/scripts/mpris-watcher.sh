@@ -55,9 +55,9 @@ while IFS= read -r line; do
 
             # Check position after 6s and force reset if needed
             (
-                sleep 1
+                sleep 0.1
                 pos=$(playerctl position 2>/dev/null)
-                log "6s later: playerctl reports position = $pos"
+                log "0.1s later: playerctl reports position = $pos"
                 if (( $(echo "$pos > 2" | bc -l) )); then
                     log "Position drifted, forcing back to 0"
                     playerctl position 0

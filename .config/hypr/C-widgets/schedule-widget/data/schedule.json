@@ -1,0 +1,23 @@
+{
+  "time_slots": [
+    "07:00 AM - 08:00 AM",
+    "08:00 AM - 09:00 AM",
+    "09:00 AM - 10:00 AM",
+    "11:00 AM - 12:00 PM"
+  ],
+  "schedule": {
+    "07:00 AM - 08:00 AM": [
+      { "title": "Morning Run", "description": "5km run through the park. Focus on pacing." },
+      null, null, null, { "title": "Project Stand-up", "description": "" }, null, null
+    ],
+    "08:00 AM - 09:00 AM": [
+      null, { "title": "Team Sync", "description": "" }, { "title": "Review PRs", "description": "" }, null, null, null, null
+    ],
+    "09:00 AM - 10:00 AM": [
+      { "title": "Code: Feature A", "description": "" }, null, null, { "title": "Planning", "description": "" }, { "title": "Code: Bugfix B", "description": "" }, null, null
+    ],
+    "11:00 AM - 12:00 PM": [
+      null, null, { "title": "Doctor's Appt", "description": "Annual check-up." }, null, null, { "title": "Brunch", "description": "" }, null
+    ]
+  }
+}

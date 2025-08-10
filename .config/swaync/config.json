@@ -1,17 +1,17 @@
 {
 "": "/etc/xdg/swaync/configSchema.json",
-"positionX": "right",
+"positionX": "center",
 "positionY": "top",
 "layer": "overlay",
 "control-center-layer": "top",
 "layer-shell": true,
 "cssPriority": "application",
 
-    "control-center-width": 400,
-    "control-center-height": 660, 
-    "control-center-margin-top": 4,
+    "control-center-width": 695,
+    "control-center-height": 675, 
+    "control-center-margin-top": 0,
     "control-center-margin-bottom": 40,
-    "control-center-margin-right": 6,
+    "control-center-margin-right": 1,
     "control-center-margin-left": 0,
   	
     "notification-2fa-action": true,
@@ -64,9 +64,9 @@
         },
         "buttons-grid": {
             "actions": [
-                 {
+              {
                     "label": " ",
-                    "command": " swaync-client -t && env GTK_THEME=Adwaita:dark WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1001 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus nm-connection-editor"
+                    "command": "swaync-client -t && env GTK_THEME=Adwaita:dark WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1001 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus nm-connection-editor"
                 },
                 {
                     "label": "󰂯",
@@ -92,9 +92,9 @@
                     "label": "",
                     "command": "swaync-client -t && systemctl poweroff"
                 },
-               {
-                    "label": "󰅃",
-                    "command": "bash ~/.config/swaync/scripts/expand.sh"
+                   {
+                    "label": "󰅂",
+                    "command": "bash ~/.config/swaync/scripts/collapse.sh"
                 }
             ]
         }

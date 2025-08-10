@@ -38,8 +38,8 @@ CHEATSHEET_STYLE_OUTPUT="$HOME/.config/hypr/python/cheatsheet.css"
 ARCHBADGE_STYLE_TEMPLATE="$HOME/.config/hypr/python/fetchapp/archbadge-template.css"
 ARCHBADGE_STYLE_OUTPUT="$HOME/.config/hypr/python/fetchapp/archbadge.css"
 # --- C-WIDGETS SIDEBAR START ---
-SIDEBAR_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/sidebar/src/style-template.css"
-SIDEBAR_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/sidebar/src/style.css"
+# SIDEBAR_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/sidebar/src/style-template.css"
+# SIDEBAR_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/sidebar/src/style.css"
 # --- C-WIDGETS SIDEBAR END ---
 
 # --- C-WIDGETS SIDEBAR END ---
@@ -49,6 +49,26 @@ CACHY_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/archlauncher-c/cachy.css"
 LAUNCHER_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/archlauncher-c/launcher-template.css"
 LAUNCHER_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/archlauncher-c/launcher.css"
 # --- C-WIDGETS LAUNCHER END ---
+
+# --- C-WIDGETS CALENDAR START ---
+HYPER_CALENDAR_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/hyper-calendar/src/style-template.css"
+HYPER_CALENDAR_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/hyper-calendar/src/style.css"
+# --- C-WIDGETS CALENDAR END ---
+
+# --- C-WIDGETS CONTROL-CENTER START ---
+CC_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/controlcenter-remake/src/style-template.css"
+CC_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/controlcenter-remake/src/style.css"
+# --- C-WIDGETS CONTROL-CENTER END ---
+
+# --- C-WIDGETS SCHEDULE-WIDGET START ---
+SCHEDULE_WIDGET_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/schedule-widget/data/style-template.css"
+SCHEDULE_WIDGET_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/schedule-widget/data/style.css"
+# --- C-WIDGETS SCHEDULE-WIDGET END ---
+
+# --- C-WIDGETS SIDE-MPRIS-PLAYER START ---
+MPRIS_PLAYER_STYLE_TEMPLATE="$HOME/.config/hypr/C-widgets/side-mpris-player/src/style-template.css"
+MPRIS_PLAYER_STYLE_OUTPUT="$HOME/.config/hypr/C-widgets/side-mpris-player/src/style.css"
+# --- C-WIDGETS SIDE-MPRIS-PLAYER END ---
 
 # --- NEW: Lock File and Mute Flag ---
 LOCK_FILE="/tmp/wallpaper.lock"
@@ -278,26 +298,26 @@ EOF
 
 
                # --- C-WIDGETS SIDEBAR START ---
-        if [ -f "$SIDEBAR_STYLE_TEMPLATE" ]; then
-            echo "Generating C-Widgets Sidebar CSS..."
-            tmp_sidebar_css=$(mktemp)
-            cp "$SIDEBAR_STYLE_TEMPLATE" "$tmp_sidebar_css"
+       # if [ -f "$SIDEBAR_STYLE_TEMPLATE" ]; then
+        #    echo "Generating C-Widgets Sidebar CSS..."
+        #    tmp_sidebar_css=$(mktemp)
+        #    cp "$SIDEBAR_STYLE_TEMPLATE" "$tmp_sidebar_css"
             
             # Map wallust colors to the named colors in the CSS template
             # 'accent' is the main theme color, usually color4
             # 'surface' is a secondary background, usually color0
             # 'warning' is for errors, usually red, which is color1
-            sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_sidebar_css"
-            sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_sidebar_css"
-            sed -i "s|%%ACCENT%%|$color4|g" "$tmp_sidebar_css"
-            sed -i "s|%%SURFACE%%|$color0|g" "$tmp_sidebar_css"
-            sed -i "s|%%WARNING%%|$color1|g" "$tmp_sidebar_css"
-
-            mv "$tmp_sidebar_css" "$SIDEBAR_STYLE_OUTPUT"
-            echo "Sidebar CSS written to $SIDEBAR_STYLE_OUTPUT"
-        else
-            echo "Error: Sidebar template $SIDEBAR_STYLE_TEMPLATE not found."
-        fi
+     #       sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_sidebar_css"
+    #        sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_sidebar_css"
+   #         sed -i "s|%%ACCENT%%|$color4|g" "$tmp_sidebar_css"
+  #          sed -i "s|%%SURFACE%%|$color0|g" "$tmp_sidebar_css"
+ #           sed -i "s|%%WARNING%%|$color1|g" "$tmp_sidebar_css"
+#
+     #       mv "$tmp_sidebar_css" "$SIDEBAR_STYLE_OUTPUT"
+    #        echo "Sidebar CSS written to $SIDEBAR_STYLE_OUTPUT"
+   #     else
+  #          echo "Error: Sidebar template $SIDEBAR_STYLE_TEMPLATE not found."
+  #      fi
         # --- C-WIDGETS SIDEBAR END ---
         
          # --- C-WIDGETS LAUNCHER START ---
@@ -341,6 +361,112 @@ EOF
         else
             echo "Warning: Color vars for C-Widgets Launcher not fully loaded. Skipping."
         fi
+
+        # --- C-WIDGETS HYPER-CALENDAR START ---
+        if [ -f "$HYPER_CALENDAR_STYLE_TEMPLATE" ]; then
+            echo "Generating C-Widgets Hyper-Calendar CSS..."
+            tmp_calendar_css=$(mktemp)
+            cp "$HYPER_CALENDAR_STYLE_TEMPLATE" "$tmp_calendar_css"
+
+            # Map wallust colors to the named colors in the CSS template
+            # 'accent' -> color4 (main theme color)
+            # 'surface' -> color0 (secondary background)
+            # 'warning' -> color1 (red for destructive actions like the delete button)
+            sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_calendar_css"
+            sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_calendar_css"
+            sed -i "s|%%ACCENT%%|$color4|g" "$tmp_calendar_css"
+            sed -i "s|%%SURFACE%%|$color0|g" "$tmp_calendar_css"
+            sed -i "s|%%WARNING%%|$color1|g" "$tmp_calendar_css"
+
+            mv "$tmp_calendar_css" "$HYPER_CALENDAR_STYLE_OUTPUT"
+            echo "Hyper-Calendar CSS written to $HYPER_CALENDAR_STYLE_OUTPUT"
+        else
+            echo "Error: Hyper-Calendar template $HYPER_CALENDAR_STYLE_TEMPLATE not found."
+        fi
+        # --- C-WIDGETS HYPER-CALENDAR END ---
+
+                # --- C-WIDGETS CONTROL-CENTER START ---
+        if [ -f "$CC_STYLE_TEMPLATE" ]; then
+            # Check for the required wallust colors
+            if [ -n "$background" ] && [ -n "$foreground" ] && [ -n "$color4" ] && [ -n "$color0" ] && [ -n "$color1" ]; then
+                echo "Generating C-Widgets Control Center CSS..."
+                tmp_cc_css=$(mktemp)
+                cp "$CC_STYLE_TEMPLATE" "$tmp_cc_css"
+
+                # Replace all the placeholders with their corresponding wallust colors
+                sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_cc_css"
+                sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_cc_css"
+                sed -i "s|%%ACCENT%%|$color4|g" "$tmp_cc_css"
+                sed -i "s|%%SURFACE%%|$color0|g" "$tmp_cc_css"
+                sed -i "s|%%WARNING%%|$color1|g" "$tmp_cc_css"
+
+                mv "$tmp_cc_css" "$CC_STYLE_OUTPUT"
+                echo "Control Center CSS written to $CC_STYLE_OUTPUT"
+            else
+                echo "Warning: Color vars for Control Center not fully loaded. Skipping."
+            fi
+        else
+            echo "Error: Control Center template $CC_STYLE_TEMPLATE not found."
+        fi
+        # --- C-WIDGETS CONTROL-CENTER END ---
+
+
+         # --- C-WIDGETS SCHEDULE-WIDGET START ---
+        if [ -f "$SCHEDULE_WIDGET_STYLE_TEMPLATE" ]; then
+            # Check for the required wallust colors
+            if [ -n "$background" ] && [ -n "$foreground" ] && [ -n "$color4" ] && [ -n "$color0" ] && [ -n "$color1" ]; then
+                echo "Generating C-Widgets Schedule-Widget CSS..."
+                tmp_schedule_css=$(mktemp)
+                cp "$SCHEDULE_WIDGET_STYLE_TEMPLATE" "$tmp_schedule_css"
+
+                # Map wallust colors to the named placeholders in the CSS template:
+                # 'accent'  -> color4 (the main theme color)
+                # 'surface' -> color0 (a secondary background shade)
+                # 'warning' -> color1 (red, for destructive actions)
+                sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_schedule_css"
+                sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_schedule_css"
+                sed -i "s|%%ACCENT%%|$color4|g" "$tmp_schedule_css"
+                sed -i "s|%%SURFACE%%|$color0|g" "$tmp_schedule_css"
+                sed -i "s|%%WARNING%%|$color1|g" "$tmp_schedule_css"
+
+                mv "$tmp_schedule_css" "$SCHEDULE_WIDGET_STYLE_OUTPUT"
+                echo "Schedule-Widget CSS written to $SCHEDULE_WIDGET_STYLE_OUTPUT"
+            else
+                echo "Warning: Color vars for Schedule-Widget not fully loaded. Skipping."
+            fi
+        else
+            echo "Error: Schedule-Widget template $SCHEDULE_WIDGET_STYLE_TEMPLATE not found."
+        fi
+        # --- C-WIDGETS SCHEDULE-WIDGET END ---
+
+         # --- C-WIDGETS SIDE-MPRIS-PLAYER START ---
+        if [ -f "$MPRIS_PLAYER_STYLE_TEMPLATE" ]; then
+            # Check for the required wallust colors
+            if [ -n "$background" ] && [ -n "$foreground" ] && [ -n "$color4" ] && [ -n "$color0" ] && [ -n "$color1" ]; then
+                echo "Generating C-Widgets Side-MPRIS-Player CSS..."
+                tmp_mpris_css=$(mktemp)
+                cp "$MPRIS_PLAYER_STYLE_TEMPLATE" "$tmp_mpris_css"
+
+                # Map wallust colors to the named placeholders in the CSS template:
+                # 'accent'  -> color4 (the main theme color)
+                # 'surface' -> color0 (a secondary background shade)
+                # 'warning' -> color1 (red, for alerts or destructive actions)
+                sed -i "s|%%BACKGROUND%%|$background|g" "$tmp_mpris_css"
+                sed -i "s|%%FOREGROUND%%|$foreground|g" "$tmp_mpris_css"
+                sed -i "s|%%ACCENT%%|$color4|g" "$tmp_mpris_css"
+                sed -i "s|%%SURFACE%%|$color0|g" "$tmp_mpris_css"
+                sed -i "s|%%WARNING%%|$color1|g" "$tmp_mpris_css"
+
+                mv "$tmp_mpris_css" "$MPRIS_PLAYER_STYLE_OUTPUT"
+                echo "Side-MPRIS-Player CSS written to $MPRIS_PLAYER_STYLE_OUTPUT"
+            else
+                echo "Warning: Color vars for Side-MPRIS-Player not fully loaded. Skipping."
+            fi
+        else
+            echo "Error: Side-MPRIS-Player template $MPRIS_PLAYER_STYLE_TEMPLATE not found."
+        fi
+        # --- C-WIDGETS SIDE-MPRIS-PLAYER END ---
+        
         # --- C-WIDGETS LAUNCHER END ---
 
                    # --- SWAYNC START ---
@@ -538,36 +664,36 @@ EOF
     echo "Application reload signals sent."
 
     # --- Reload Custom GTK Widgets (The Correct Way) ---
-    echo "Reloading custom GTK widgets..."
+    #echo "Reloading custom GTK widgets..."
     
     # Cheatsheet doesn't need reloading as it's not a daemon.
     # It will load the new theme the next time it's launched.
 
     # For Arch Badge, we use the simple and reliable kill-and-restart method.
-    if pgrep -f "archbadge.py" > /dev/null; then
-        echo "Restarting Arch Badge to apply new theme..."
-        pkill -f "archbadge.py"
-        sleep 0.2 # Give it a moment to die completely
-    fi
+   # if pgrep -f "archbadge.py" > /dev/null; then
+    #    echo "Restarting Arch Badge to apply new theme..."
+     #   pkill -f "archbadge.py"
+      #  sleep 0.2 # Give it a moment to die completely
+    #fi
     # Start a new instance in the background using the correct path.
-    python "$HOME/.config/hypr/python/fetchapp/archbadge.py" &
+    #python "$HOME/.config/hypr/python/fetchapp/archbadge.py" &
 
 # --- C-WIDGETS SIDEBAR (RELOAD) ---
 # Restarts only if hypr-sidebar is currently running and killable.
-if pgrep -x "hypr-sidebar" > /dev/null; then
-    echo "Restarting C-Widgets Sidebar to apply new theme..."
-    if pkill -x "hypr-sidebar"; then
-        sleep 0.2 # Give it a moment to fully terminate
-        (
-            cd "$HOME/.config/hypr/C-widgets/sidebar/builddir" || exit
-            ./hypr-sidebar &
-        )
-    else
-        echo "Failed to kill hypr-sidebar; not restarting."
-    fi
-else
-    echo "hypr-sidebar not running; skipping restart."
-fi
+#if pgrep -x "hypr-sidebar" > /dev/null; then
+#    echo "Restarting C-Widgets Sidebar to apply new theme..."
+#    if pkill -x "hypr-sidebar"; then
+#        sleep 0.2 # Give it a moment to fully terminate
+#        (
+#            cd "$HOME/.config/hypr/C-widgets/sidebar/builddir" || exit
+#            ./hypr-sidebar &
+#        )
+#    else
+#        echo "Failed to kill hypr-sidebar; not restarting."
+#    fi
+#else
+#    echo "hypr-sidebar not running; skipping restart."
+#fi
 # --- C-WIDGETS SIDEBAR END ---
 
     

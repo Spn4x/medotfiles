@@ -1,0 +1,74 @@
+/* ~/.config/waybar/style.css */
+
+/* -----------------------------------------------------------------------------
+ * General styles
+ * -------------------------------------------------------------------------- */
+* {
+    /* `*` applies to all elements */
+    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free";
+    font-size: 14px;
+    font-weight: bold;
+}
+
+window#waybar {
+    background-color: rgba(26, 27, 38, 0.8); /* Dark background with transparency */
+    color: #cdd6f4; /* Light text color */
+    border-bottom: 2px solid #45475a;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+/* -----------------------------------------------------------------------------
+ * Module styles
+ * -------------------------------------------------------------------------- */
+#workspaces,
+#clock,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#tray,
+#mode,
+#window {
+    padding: 0 10px;
+    margin: 0 4px;
+    border-radius: 10px;
+    background-color: #313244; /* Slightly lighter background for modules */
+}
+
+/* Style for the focused workspace */
+#workspaces button.focused {
+    background-color: #89b4fa; /* Blue for focused workspace */
+    color: #1e1e2e;
+}
+
+#workspaces button:hover {
+    background-color: #585b70;
+}
+
+/* If the bar is muted, change the style */
+#pulseaudio.muted {
+    background-color: #f38ba8; /* Red when muted */
+    color: #1e1e2e;
+}
+
+/* Different colors for different states */
+#memory {
+    background-color: #a6e3a1; /* Green */
+    color: #1e1e2e;
+}
+
+#cpu {
+    background-color: #f9e2af; /* Yellow */
+    color: #1e1e2e;
+}
+
+#network {
+    background-color: #cba6f7; /* Purple */
+    color: #1e1e2e;
+}
+
+#clock {
+    background-color: #fab387; /* Orange */
+    color: #1e1e2e;
+}
