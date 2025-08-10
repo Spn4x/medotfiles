@@ -41,7 +41,6 @@ cat > "$CONFIG_FILE" << EOF
     "hide-on-action": true,
     "script-fail-notify": true,
     "widgets": [
-         "mpris",
          "buttons-grid",
          "volume", 
          "backlight",
