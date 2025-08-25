@@ -39,6 +39,7 @@ nm-applet --indicator &
 blueman-applet &
 python ~/.config/hypr/python/fetchapp/archbadge.py &
 systemctl --user restart mpris-watcher.service &
+vicinae server & 
 
 # --------------------------------------------------------------------------------------
 # B. ENVIRONMENT & SYSTEM SERVICES
