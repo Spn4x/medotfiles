@@ -17,7 +17,7 @@ This is a "backyard mechanic's" approach to the desktop: if a tool didn't exist 
 *   **Dynamic Theming:** Using **Wallust**, the entire 16-color palette is generated from the current wallpaper. A central management script then applies this theme to every configured application.
 *   **Custom C Widgets:** The core of the experience. These are not just display items; they are fully-functional applications built from scratch to integrate seamlessly with the desktop:
     *   **Control Center:** Manages Wi-Fi, Bluetooth, audio sinks, brightness, and volume.
-    *   **Hyper-Calendar & Schedule Widget:** A full calendar with CRUD (Create, Read, Update, Delete) functionality for managing events and schedules.
+    *   **Hyper-Calendar:** A full calendar with CRUD (Create, Read, Update, Delete) functionality for managing events and schedules.
     *   **Side-MPRIS-Player:** A media player widget that displays metadata and features perfectly **synced lyrics** for music playing in any MPRIS-compatible player (including browsers).
 *   **Centralized Management:** A single shell script (`manage.sh`) is used for my personal convenience to manage symlinks.
 *   **Aesthetic Cohesion:** Every component, from the Ironbar status bar to the SwayNC notification daemon, is themed using a consistent set of CSS templates, ensuring a pixel-perfect, unified look and feel.
