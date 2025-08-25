@@ -52,7 +52,7 @@ This setup is built on a foundation of powerful and flexible open-source softwar
 
 *   **OS:** Arch Linux
 *   **Window Manager:** [Hyprland](https://hyprland.org/)
-*   **Theming Engine:** [Wallust](https://github.com/wallust-project/wallust)
+*   **Theming Engine:** [Wallust](https://codeberg.org/explosion-mental/wallust)
 *   **Status Bar:** [Ironbar](https://github.com/JakeStanger/ironbar)
 *   **Wallpaper Daemon:** [swww](https://github.com/Horus645/swww)
 *   **Terminal:** [Kitty](https://sw.kovidgoyal.net/kitty/)
