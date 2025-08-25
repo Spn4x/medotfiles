@@ -30,7 +30,7 @@ Here are a few videos demonstrating the setup in action.
 
 | Live Widget Demo | Dynamic Theming in Action |
 | :---: | :---: |
-| [Video Link or GIF](vids/short-widget-demo-preview.mp4) | [Video Link or GIF](vids/theming-engine-preview.mp4) |
+| [Download Video](vids/short-widget-demo-preview.mp4) | [Download Video](vids/theming-engine-preview.mp4) |
 
 ### Gallery
 
