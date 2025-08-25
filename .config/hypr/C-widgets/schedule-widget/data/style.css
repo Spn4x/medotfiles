@@ -1,9 +1,9 @@
 /* --- Color Palette Definition --- */
-@define-color background #151514;
-@define-color foreground #E7E9E8;
-@define-color accent     #73888A;
-@define-color surface    #3C3C3C;
-@define-color warning    #161512;
+@define-color background #111111;
+@define-color foreground #D7E0BB;
+@define-color accent     #6D6D6C;
+@define-color surface    #393939;
+@define-color warning    #111112;
 
 /* ======================================= */
 /* ---        Main Widget Theme        --- */
