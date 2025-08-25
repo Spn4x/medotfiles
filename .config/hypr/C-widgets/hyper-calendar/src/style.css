@@ -1,9 +1,9 @@
 /* --- Color Palette Definition --- */
-@define-color background #1A0F0F;
-@define-color foreground #FCD8A7;
-@define-color accent     #CC0E03;
-@define-color surface    #423838;
-@define-color warning    #2E0101;
+@define-color background #232627;
+@define-color foreground #D4E0C0;
+@define-color accent     #3C6335;
+@define-color surface    #484C4D;
+@define-color warning    #13292E;
 
 /* --- General Window Style --- */
 .layer-shell-window {

@@ -1,8 +1,8 @@
 /* --- Template for the COMPACT Uptime Widget --- */
-@define-color surface #423838;
-@define-color foreground #FCD8A7;
-@define-color accent #CC0E03;      /* Using color4 for the accent */
-@define-color text-subtle #F3BF78;
+@define-color surface #484C4D;
+@define-color foreground #D4E0C0;
+@define-color accent #3C6335;      /* Using color4 for the accent */
+@define-color text-subtle #BACA9C;
 
 /* Make the top-level window itself completely transparent */
 window {

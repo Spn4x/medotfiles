@@ -6,9 +6,9 @@
 
  
 .control-center {
-  background: rgba(26, 15, 15, 0.3);
+  background: rgba(35, 38, 39, 0.3);
   border-radius: 10px;
-  border: 2px solid #CC0E03;
+  border: 2px solid #3C6335;
   margin: 2px;
   padding: 18px 4px 4px 4px;
   margin-top: 6px;
@@ -32,15 +32,15 @@
 }
 .widget-title > button {
   font-size: initial;
-  color: #F3BF78;
+  color: #BACA9C;
   text-shadow: none;
   background: transparent;
-  border: 1px solid rgba(243, 191, 120, 0.5);
+  border: 1px solid rgba(186, 202, 156, 0.5);
   box-shadow: none;
   border-radius: 12px;
 }
 .widget-title > button:hover {
-  background: #2E0101;
+  background: #13292E;
   
 }
 
@@ -56,22 +56,22 @@
   margin-left: 14px;
   margin-right: 14px;
   border-radius: 10px;
-  border: 1px solid rgba(170, 133, 84, 0.5);
+  border: 1px solid rgba(130, 141, 110, 0.5);
   box-shadow: none;
 }
 
 
 .widget-mpris-player button {
-    background: rgba(66, 56, 56, 0.5);
-    border: 2px solid rgba(170, 133, 84, 0.5);
+    background: rgba(72, 76, 77, 0.5);
+    border: 2px solid rgba(130, 141, 110, 0.5);
     box-shadow: none;
     text-shadow: none;
-    color: #F3BF78;
+    color: #BACA9C;
 }
 
 
 .widget-mpris-player button:hover {
-  background: #2E0101; /* Hover background */
+  background: #13292E; /* Hover background */
   transition: all 0.3s ease-in-out;
   box-shadow: none;
   text-shadow: none;
@@ -92,21 +92,21 @@
   margin-right: 8px;
   margin-bottom: 14;
   border-radius: 10px;
-  border: 2px solid rgba(170, 133, 84, 0.5);
+  border: 2px solid rgba(130, 141, 110, 0.5);
   padding-top: 14px;
   padding-bottom: 14px;
-  background: rgba(66, 56, 56, 0.3);
+  background: rgba(72, 76, 77, 0.3);
   margin: 0 14px; 
   padding: 2px 2px; 
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button {
   padding: 10px;
-  background: rgba(204, 14, 3, 0.5);
-  color: #F3BF78;      /* Light button text */
+  background: rgba(60, 99, 53, 0.5);
+  color: #BACA9C;      /* Light button text */
   border-radius: 12px;
   margin: 2px;
-  border: 2px solid rgba(170, 133, 84, 0.5);
+  border: 2px solid rgba(130, 141, 110, 0.5);
   box-shadow: none;     
   margin-left: 4px; 
    /* --- THE FIX for Consistency --- */
@@ -114,7 +114,7 @@
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button:hover {
-  background: #2E0101; /* Vibrant accent on hover */
+  background: #13292E; /* Vibrant accent on hover */
   transition: all 0.3s ease-in-out;
 }
 
@@ -144,21 +144,21 @@
 .widget-volume trough,
 .widget-backlight trough {
   border-radius: 20px;
-  background: #1A0F0F; /* Dark slider track */
-  border: 1px solid #1A0F0F;
+  background: #232627; /* Dark slider track */
+  border: 1px solid #232627;
 }
 .widget-volume trough highlight,
 .widget-backlight trough highlight {
   padding-top: 1px;
-  background: #CC0E03; /* Vibrant slider fill */
-  border: 1px solid #CC0E03;
+  background: #3C6335; /* Vibrant slider fill */
+  border: 1px solid #3C6335;
   border-radius: 20px;
 }
 .widget-volume trough slider,
 .widget-backlight trough slider {
   padding: 1px;
-  background: #CC0E03; /* Vibrant slider handle */
-  border: 1px solid #CC0E03;
+  background: #3C6335; /* Vibrant slider handle */
+  border: 1px solid #3C6335;
    box-shadow: none;
 }
 
@@ -167,12 +167,12 @@
 
 /* --- FIX: Style the "notify-send" group header --- */
 .notification-group-header {
-    background: rgba(66, 56, 56, 0.5);
-    border: 2px solid rgba(170, 133, 84, 0.5);
+    background: rgba(72, 76, 77, 0.5);
+    border: 2px solid rgba(130, 141, 110, 0.5);
     border-radius: 12px;
     padding: 6px 12px;
     margin: 0 0 8px -37px; /* Adds space below the header */
-    color: #F3BF78;
+    color: #BACA9C;
     font-weight: bold;
 }
 
@@ -199,8 +199,8 @@
 }
 
 .notification-row .notification-background .close-button {
-  background: rgba(204, 14, 3, 0.5); /* Vibrant accent for close button */
-  color: #F3BF78; /* Lightest text */
+  background: rgba(60, 99, 53, 0.5); /* Vibrant accent for close button */
+  color: #BACA9C; /* Lightest text */
   border-radius: 100%;
   margin: 5px 5px 0 0;
   min-width: 24px;
@@ -209,16 +209,16 @@
   box-shadow: none;
 }
 .notification-row .notification-background .close-button:hover {
-  background: rgba(204, 14, 3, 0.5); /* Different accent on hover */
+  background: rgba(60, 99, 53, 0.5); /* Different accent on hover */
   transition: background 0.15s ease-in-out;
 }
 
 .notification-row .notification-background .notification {
   border-radius: 12px;
-  border: 2px solid rgba(170, 133, 84, 0.5); /* Subtle grey border */
+  border: 2px solid rgba(130, 141, 110, 0.5); /* Subtle grey border */
   padding: 0;
   transition: background 0.15s ease-in-out;
-  background: rgba(66, 56, 56, 0.5); /* Dark notification background */
+  background: rgba(72, 76, 77, 0.5); /* Dark notification background */
 }
 
 .notification-row .notification-background .notification .notification-action,
@@ -227,7 +227,7 @@
   margin: 0;
   background: transparent;
   border: none;
-  color: #F3BF78; /* Lightest text */
+  color: #BACA9C; /* Lightest text */
   transition: background 0.15s ease-in-out;
   box-shadow: none;
 }
@@ -236,31 +236,31 @@
 
 .notification-row .notification-background .notification .notification-action:hover,
 .notification-row .notification-background .notification .notification-default-action:hover {
-  background: rgba(167, 83, 3, 0.5); /* Lighter accent on hover */
+  background: rgba(92, 130, 59, 0.5); /* Lighter accent on hover */
 }
 
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary,
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time,
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
-  color: #F3BF78; /* Lightest text */
+  color: #BACA9C; /* Lightest text */
 }
 
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-entry {
-  background: rgba(46, 1, 1, 0.5);
-  color: #F3BF78;
-  caret-color: #F3BF78;
-  border: 1px solid rgba(170, 133, 84, 0.5);
+  background: rgba(19, 41, 46, 0.5);
+  color: #BACA9C;
+  caret-color: #BACA9C;
+  border: 1px solid rgba(130, 141, 110, 0.5);
   border-radius: 12px;
 }
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button {
-  background: rgba(66, 56, 56, 0.5);
-  border: 1px solid rgba(170, 133, 84, 0.5);
+  background: rgba(72, 76, 77, 0.5);
+  border: 1px solid rgba(130, 141, 110, 0.5);
   border-radius: 12px;
-  color: #F3BF78;
+  color: #BACA9C;
 }
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button:disabled {
-  color: rgba(243, 191, 120, 0.5);
+  color: rgba(186, 202, 156, 0.5);
 }
 .notification-row .notification-background .notification .notification-default-action .inline-reply .inline-reply-button:hover {
-  background: rgba(167, 83, 3, 0.5);
+  background: rgba(92, 130, 59, 0.5);
 }
