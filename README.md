@@ -39,7 +39,7 @@ Detailed views of the custom widgets and the dynamic theming engine.
 | MPRIS Player with Synced Lyrics | Control Center |
 | :---: | :---: |
 | ![MPRIS Player Showcase](pics/mpris-preview.png) | ![Control Center Showcase](pics/control-center.png) |
-| **Calendar & Schedule** | **Dynamic Theme: Palette 1** |
+| **Calendar** | **Dynamic Theme: Palette 1** |
 | ![Calendar Showcase](pics/calendar-preview.png) | ![Theme Example 1](pics/changed-wallpaper-preview-1.png) |
 | **Schedule Items** | **Dynamic Theme: Palette 2** |
 | ![Schedule Showcase](pics/schedule-preview.png) | ![Theme Example 2](pics/changed-wallpaper-preview-2.png) |
