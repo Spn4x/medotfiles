@@ -6,11 +6,11 @@
 */
 
 /* --- Color Palette & Font (Placeholders) --- */
-@define-color background #232627;
-@define-color foreground #D4E0C0;
-@define-color accent     #3C6335;
-@define-color surface    #484C4D;
-@define-color warning    #13292E;
+@define-color background #151514;
+@define-color foreground #E7E9E8;
+@define-color accent     #73888A;
+@define-color surface    #3C3C3C;
+@define-color warning    #161512;
 
 @define-color-font-main "JetBrainsMono Nerd Font";
 
