@@ -2,27 +2,27 @@
 /* This file is processed by Wallust and becomes colors-wallust.css */
 
 /* --- Wallust Variables for Waybar's @define-color --- */
-@define-color wallust_background      #0F1214;
-@define-color wallust_foreground      #EBE6E6;
-@define-color wallust_cursor          #8C8084; /* Might not be used by Waybar directly, but good to have */
+@define-color wallust_background      #1A0F0F;
+@define-color wallust_foreground      #FCD8A7;
+@define-color wallust_cursor          #8F7D54; /* Might not be used by Waybar directly, but good to have */
 
-@define-color wallust_color0          #383A3C;  /* Black */
-@define-color wallust_color1          #02141B;  /* Red */
-@define-color wallust_color2          #2D1A22;  /* Green */
-@define-color wallust_color3          #4A4E54;  /* Yellow */
-@define-color wallust_color4          #966166;  /* Blue */
-@define-color wallust_color5          #7A858B;  /* Magenta */
-@define-color wallust_color6          #C7B7B8;  /* Cyan */
-@define-color wallust_color7          #DBD3D3;  /* White */
+@define-color wallust_color0          #423838;  /* Black */
+@define-color wallust_color1          #2E0101;  /* Red */
+@define-color wallust_color2          #212301;  /* Green */
+@define-color wallust_color3          #6F0202;  /* Yellow */
+@define-color wallust_color4          #CC0E03;  /* Blue */
+@define-color wallust_color5          #A75303;  /* Magenta */
+@define-color wallust_color6          #F78F03;  /* Cyan */
+@define-color wallust_color7          #F3BF78;  /* White */
 
-@define-color wallust_color8          #999394;  /* Bright Black (Gray) */
-@define-color wallust_color9          #02141B;  /* Bright Red */
-@define-color wallust_color10         #2D1A22; /* Bright Green */
-@define-color wallust_color11         #4A4E54; /* Bright Yellow */
-@define-color wallust_color12         #966166; /* Bright Blue */
-@define-color wallust_color13         #7A858B; /* Bright Magenta */
-@define-color wallust_color14         #C7B7B8; /* Bright Cyan */
-@define-color wallust_color15         #DBD3D3; /* Bright White */
+@define-color wallust_color8          #AA8554;  /* Bright Black (Gray) */
+@define-color wallust_color9          #2E0101;  /* Bright Red */
+@define-color wallust_color10         #212301; /* Bright Green */
+@define-color wallust_color11         #6F0202; /* Bright Yellow */
+@define-color wallust_color12         #CC0E03; /* Bright Blue */
+@define-color wallust_color13         #A75303; /* Bright Magenta */
+@define-color wallust_color14         #F78F03; /* Bright Cyan */
+@define-color wallust_color15         #F3BF78; /* Bright White */
 
 /* --- You can also define some semantic colors based on Wallust's palette --- */
 /* These are examples; choose colors that make sense for your theme. */

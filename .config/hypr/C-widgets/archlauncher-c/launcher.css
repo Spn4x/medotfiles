@@ -1,8 +1,8 @@
 /* Use wallust colors as CSS variables */
-@define-color background #0F1214;
-@define-color foreground #EBE6E6;
-@define-color accent #966166;
-@define-color surface #383A3C;
+@define-color background #1A0F0F;
+@define-color foreground #FCD8A7;
+@define-color accent #CC0E03;
+@define-color surface #423838;
 
 /* --- Main Window and Container --- */
 window.launcher-window {
@@ -128,11 +128,11 @@ scrollbar trough {
 /* Style the row that is currently selected. */
 .app-row:selected {
     /* FIXED: Using the dynamic theme accent color instead of a hardcoded blue */
-    background-color: #966166;
+    background-color: #CC0E03;
 }
 
 /* When a row is selected, the text inside it should be white for contrast. */
 .app-row:selected .app-name {
     /* FIXED: Using the dynamic theme foreground color for better contrast */
-    color: #EBE6E6;
+    color: #FCD8A7;
 }

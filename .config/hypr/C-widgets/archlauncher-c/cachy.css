@@ -4,10 +4,10 @@
  */
 
 /* --- Color Palette (from Wallust Cheatsheet Template) --- */
-@define-color background #0F1214; /* The deep, dark base */
-@define-color foreground #EBE6E6; /* The warm, primary text color */
-@define-color accent #966166;     /* The strong, vibrant accent for highlights */
-@define-color surface #383A3C;    /* The muted, dark color for backgrounds/surfaces */
+@define-color background #1A0F0F; /* The deep, dark base */
+@define-color foreground #FCD8A7; /* The warm, primary text color */
+@define-color accent #CC0E03;     /* The strong, vibrant accent for highlights */
+@define-color surface #423838;    /* The muted, dark color for backgrounds/surfaces */
 
 
 /* The main application window.
