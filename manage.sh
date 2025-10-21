@@ -26,6 +26,7 @@ TO_TRACK_CONFIG=(
     "kitty"
     "wallust"
     "btop"
+    "aurora-shell"
 )
 
 # Files or Directories from ~/ (your home directory)
