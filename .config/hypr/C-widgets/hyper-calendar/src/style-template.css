@@ -5,13 +5,45 @@
 @define-color surface    %%SURFACE%%;
 @define-color warning    %%WARNING%%;
 
-/* --- General Window Style --- */
+
+
+/* ======================================= */
+/* ---        Main Widget Theme        --- */
+/* ======================================= */
+
+/* THE FIX: Make the actual GtkWindow a transparent ghost container */
+window {
+  background: transparent;
+}
+
+/* THE FIX: Apply ALL styles and animation to your original class name */
 .layer-shell-window {
     background-color: alpha(@background, 0.3);
-    border-radius: 12px;
     border: 2px solid alpha(@accent, 0.8);
     font-family: "Cantarell", sans-serif;
-    transition: margin 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+
+    /* The animation engine */
+    transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Initial pill state */
+    border-radius: 24px;
+    min-width: 160px;
+    min-height: 48px;
+    padding: 0;
+}
+
+/* Define the final, expanded state */
+.layer-shell-window.expanded {
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 550px;
+}
+
+/* Style for the "Calendar" text inside the initial pill */
+.pill-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: @foreground;
 }
 
 /* --- Header & Navigation --- */

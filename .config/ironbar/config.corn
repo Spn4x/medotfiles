@@ -10,15 +10,6 @@ let {
         on_click = "focus"
     }
 
-    $focused_window = {
-        type = "focused"
-        class = "module module-window-title"
-        show_icon = true
-        show_title = false
-        icon_size = 16
-        truncate.mode = "end"
-        truncate.max_length = 0
-    }
 
 $sys_all = {
     type        = "script"
@@ -28,6 +19,7 @@ $sys_all = {
     interval    = 4000
     format      = "{}"
 }
+
 
 $backlight = {
     type        = "script"
@@ -97,9 +89,9 @@ $bt_battery = {
     ]
 }
 
-    $left_widgets = [ $workspaces  ]
-    $center_widgets = [ $clock $sys_all  ]
-    $right_widgets = [ $bt_battery $dnd ]
+    $left_widgets = [ ]
+    $center_widgets = [ $workspaces $clock $sys_all $bt_battery $dnd ]
+    $right_widgets = [ ]
 
 }
 

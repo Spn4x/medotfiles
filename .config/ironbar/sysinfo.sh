@@ -47,8 +47,8 @@ case "$state" in
   charging)     bat_icon="󰂄" ;;
   discharging)
     if   (( pct >= 90 )); then bat_icon="󰁹"
-    elif (( pct >= 60 )); then bat_icon="󰁻"
-    elif (( pct >= 30 )); then bat_icon="󰁼"
+    elif (( pct >= 60 )); then bat_icon="󰁼"
+    elif (( pct >= 30 )); then bat_icon="󰁻"
     else                       bat_icon="󰁿"
     fi ;;
   fully-charged) bat_icon="󰁹" ;;

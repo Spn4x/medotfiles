@@ -3,12 +3,14 @@
  * Uses a lighter palette for text and highlights, and darker for backgrounds.
  * Populated by wallpaper.sh
  */
-
+@define-color gnome-bg #28282C;
+@define-color gnome-highlight #3E3E41;
+@define-color accent #FFF;
  
 .control-center {
-  background: rgba(15, 18, 20, 0.3);
+  background: @gnome-bg;
   border-radius: 10px;
-  border: 2px solid #966166;
+  border: 2px solid alpha(@accent, 0.2);
   margin: 2px;
   padding: 18px 4px 4px 4px;
   margin-top: 6px;
@@ -32,15 +34,15 @@
 }
 .widget-title > button {
   font-size: initial;
-  color: #DBD3D3;
+  color: #AFDABC;
   text-shadow: none;
   background: transparent;
-  border: 1px solid rgba(219, 211, 211, 0.5);
+  border: 1px solid rgba(175, 218, 188, 0.5);
   box-shadow: none;
   border-radius: 12px;
 }
 .widget-title > button:hover {
-  background: #02141B;
+  background: #1C3943;
   
 }
 
@@ -56,22 +58,22 @@
   margin-left: 14px;
   margin-right: 14px;
   border-radius: 10px;
-  border: 1px solid rgba(153, 147, 148, 0.5);
+  border: 1px solid rgba(123, 153, 132, 0.5);
   box-shadow: none;
 }
 
 
 .widget-mpris-player button {
-    background: rgba(56, 58, 60, 0.5);
-    border: 2px solid rgba(153, 147, 148, 0.5);
+    background: rgba(61, 62, 66, 0.5);
+    border: 2px solid rgba(123, 153, 132, 0.5);
     box-shadow: none;
     text-shadow: none;
-    color: #DBD3D3;
+    color: #AFDABC;
 }
 
 
 .widget-mpris-player button:hover {
-  background: #02141B; /* Hover background */
+  background: #1C3943; /* Hover background */
   transition: all 0.3s ease-in-out;
   box-shadow: none;
   text-shadow: none;
@@ -92,21 +94,21 @@
   margin-right: 8px;
   margin-bottom: 14;
   border-radius: 10px;
-  border: 2px solid rgba(153, 147, 148, 0.5);
+  border: 2px solid rgba(123, 153, 132, 0.5);
   padding-top: 14px;
   padding-bottom: 14px;
-  background: rgba(56, 58, 60, 0.3);
+  background: rgba(61, 62, 66, 0.3);
   margin: 0 14px; 
   padding: 2px 2px; 
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button {
   padding: 10px;
-  background: rgba(150, 97, 102, 0.5);
-  color: #DBD3D3;      /* Light button text */
+  background: rgba(70, 164, 77, 0.5);
+  color: #AFDABC;      /* Light button text */
   border-radius: 12px;
   margin: 2px;
-  border: 2px solid rgba(153, 147, 148, 0.5);
+  border: 2px solid rgba(123, 153, 132, 0.5);
   box-shadow: none;     
   margin-left: 4px; 
    /* --- THE FIX for Consistency --- */
@@ -114,7 +116,7 @@
 }
 
 .widget-buttons-grid > flowbox > flowboxchild > button:hover {
-  background: #02141B; /* Vibrant accent on hover */
+  background: #1C3943; /* Vibrant accent on hover */
   transition: all 0.3s ease-in-out;
 }
 
@@ -144,21 +146,21 @@
 .widget-volume trough,
 .widget-backlight trough {
   border-radius: 20px;
-  background: #0F1214; /* Dark slider track */
-  border: 1px solid #0F1214;
+  background: #16171A; /* Dark slider track */
+  border: 1px solid #16171A;
 }
 .widget-volume trough highlight,
 .widget-backlight trough highlight {
   padding-top: 1px;
-  background: #966166; /* Vibrant slider fill */
-  border: 1px solid #966166;
+  background: #46A44D; /* Vibrant slider fill */
+  border: 1px solid #46A44D;
   border-radius: 20px;
 }
 .widget-volume trough slider,
 .widget-backlight trough slider {
   padding: 1px;
-  background: #966166; /* Vibrant slider handle */
-  border: 1px solid #966166;
+  background: #46A44D; /* Vibrant slider handle */
+  border: 1px solid #46A44D;
    box-shadow: none;
 }
 
@@ -167,12 +169,12 @@
 
 /* --- FIX: Style the "notify-send" group header --- */
 .notification-group-header {
-    background: rgba(56, 58, 60, 0.5);
-    border: 2px solid rgba(153, 147, 148, 0.5);
+    background: rgba(61, 62, 66, 0.5);
+    border: 2px solid rgba(123, 153, 132, 0.5);
     border-radius: 12px;
     padding: 6px 12px;
     margin: 0 0 8px -37px; /* Adds space below the header */
-    color: #DBD3D3;
+    color: #AFDABC;
     font-weight: bold;
 }
 
@@ -199,8 +201,8 @@
 }
 
 .notification-row .notification-background .close-button {
-  background: rgba(150, 97, 102, 0.5); /* Vibrant accent for close button */
-  color: #DBD3D3; /* Lightest text */
+  background: rgba(70, 164, 77, 0.5); /* Vibrant accent for close button */
+  color: #AFDABC; /* Lightest text */
   border-radius: 100%;
   margin: 5px 5px 0 0;
   min-width: 24px;
@@ -209,16 +211,16 @@
   box-shadow: none;
 }
 .notification-row .notification-background .close-button:hover {
-  background: rgba(150, 97, 102, 0.5); /* Different accent on hover */
+  background: rgba(70, 164, 77, 0.5); /* Different accent on hover */
   transition: background 0.15s ease-in-out;
 }
 
 .notification-row .notification-background .notification {
   border-radius: 12px;
-  border: 2px solid rgba(153, 147, 148, 0.5); /* Subtle grey border */
+  border: 2px solid rgba(123, 153, 132, 0.5); /* Subtle grey border */
   padding: 0;
   transition: background 0.15s ease-in-out;
-  background: rgba(56, 58, 60, 0.5); /* Dark notification background */
+  background: rgba(61, 62, 66, 0.5); /* Dark notification background */
 }
 
 .notification-row .notification-background .notification .notification-action,
@@ -227,7 +229,7 @@
   margin: 0;
   background: transparent;
   border: none;
-  color: #DBD3D3; /* Lightest text */
+  color: #AFDABC; /* Lightest text */
   transition: background 0.15s ease-in-out;
   box-shadow: none;
 }
@@ -236,31 +238,31 @@
 
 .notification-row .notification-background .notification .notification-action:hover,
 .notification-row .notification-background .notification .notification-default-action:hover {
-  background: rgba(122, 133, 139, 0.5); /* Lighter accent on hover */
+  background: rgba(91, 164, 137, 0.5); /* Lighter accent on hover */
 }
 
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary,
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time,
 .notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
-  color: #DBD3D3; /* Lightest text */
+  color: #AFDABC; /* Lightest text */
 }
 
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-entry {
-  background: rgba(2, 20, 27, 0.5);
-  color: #DBD3D3;
-  caret-color: #DBD3D3;
-  border: 1px solid rgba(153, 147, 148, 0.5);
+  background: rgba(28, 57, 67, 0.5);
+  color: #AFDABC;
+  caret-color: #AFDABC;
+  border: 1px solid rgba(123, 153, 132, 0.5);
   border-radius: 12px;
 }
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button {
-  background: rgba(56, 58, 60, 0.5);
-  border: 1px solid rgba(153, 147, 148, 0.5);
+  background: rgba(61, 62, 66, 0.5);
+  border: 1px solid rgba(123, 153, 132, 0.5);
   border-radius: 12px;
-  color: #DBD3D3;
+  color: #AFDABC;
 }
 .notification-row .notification-background .notification .notification-default-action .notification-content .inline-reply .inline-reply-button:disabled {
-  color: rgba(219, 211, 211, 0.5);
+  color: rgba(175, 218, 188, 0.5);
 }
 .notification-row .notification-background .notification .notification-default-action .inline-reply .inline-reply-button:hover {
-  background: rgba(122, 133, 139, 0.5);
+  background: rgba(91, 164, 137, 0.5);
 }

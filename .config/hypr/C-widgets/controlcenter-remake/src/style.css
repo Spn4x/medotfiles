@@ -5,11 +5,11 @@
 */
 
 /* --- Color Palette & Font (Placeholders from Theme) --- */
-@define-color background #0F1214;
-@define-color foreground #EBE6E6;
-@define-color accent     #966166;
-@define-color surface    #383A3C;
-@define-color warning    #02141B;
+@define-color background #111111;
+@define-color foreground #D7E0BB;
+@define-color accent     #6D6D6C;
+@define-color surface    #393939;
+@define-color warning    #111112;
 @define-color-font-main "JetBrainsMono Nerd Font";
 
 /* --- Custom Colors Derived from RGBA Values --- */
@@ -20,24 +20,70 @@
 @define-color lyrics-bg #141619; /* Original: rgb(20, 22, 25) */
 
 
+/* ======================================= */
+/* ---      NEW: Launch Animation      --- */
+/* ======================================= */
+@keyframes cinematic-bounce-controls {
+  0% {
+    min-width: 150px;
+    min-height: 48px;
+    border-radius: 24px;
+    padding: 0;
+  }
+  70% {
+    min-width: 630px; /* Overshoot */
+    min-height: 200px; /* Overshoot */
+    border-radius: 12px;
+    padding: 14px; /* Overshoot */
+  }
+  100% {
+    min-width: 600px; /* Final size */
+  
+    border-radius: 16px; /* Final radius */
+    padding: 12px; /* Final padding */
+  }
+}
 
-window, popover, dialog {
-    font-family: @define-color-font-main, monospace;
+#main-container {
     background-color: alpha(@surface, 0.3);
-    color: @foreground;
     border: 2px solid alpha(@accent, 0.9);
-    border-radius: 14px;
-    box-shadow: none; /* Explicitly removed as requested */
+    transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1); /* Fallback for shrinking */
+    
+    /* Initial Pill State */
+    border-radius: 24px;
+    min-width: 150px;
+    min-height: 48px;
+    padding: 0;
+}
+
+#main-container.expanded {
+    animation: cinematic-bounce-controls 600ms forwards;
+    /* Explicitly set final state to match keyframes */
+    min-width: 600px;
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.pill-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: @foreground;
+}
+
+/* ======================================= */
+/* ---          Main Window            --- */
+/* ======================================= */
+window {
+    font-family: @define-color-font-main, monospace;
+    background-color: transparent; /* The window is a ghost */
+    box-shadow: none;
     margin-left: 6px;
 }
 
-/* --- Main Window --- */
+/* Your original .main-popup class now styles the content box inside */
 .main-popup {
-   
     border-radius: 16px;
-    padding: 12px;
-    
-    
+    padding: 0; /* Padding is handled by the animated container now */
 }
 
 /* --- Top Toggle Grid --- */
@@ -45,187 +91,34 @@ window, popover, dialog {
     background: alpha(@custom-grey-dark, 0.3);
     border: none;
     border-radius: 10px;
-    min-width: 70px;
+    min-width: 120px;
     min-height: 60px;
     transition: background-color 0.2s ease-in-out;
 }
-
-.square-toggle:hover {
-    background-color: alpha(@custom-grey-medium, 0.25);
-}
-
-.square-toggle:checked {
-}
-
+.square-toggle:hover { background-color: alpha(@custom-grey-medium, 0.25); }
 .square-toggle:checked image,
-.square-toggle:checked label {
-    color: white;
-}
-
-.square-toggle image {
-    font-size: 2em; /* Larger icon */
-    margin-bottom: 4px;
-}
-
-.square-toggle label {
-    font-size: 0.9em;
-    font-weight: bold;
-}
+.square-toggle:checked label { color: white; }
+.square-toggle image { font-size: 2em; margin-bottom: 4px; }
+.square-toggle label { font-size: 0.9em; font-weight: bold; }
 
 /* --- Sliders Box --- */
-.sliders-box {
-    background: none;
-    margin: 12px 4px;
-}
-
-.sliders-box > label {
-    font-size: 0.8em;
-    font-weight: bold;
-    opacity: 0.7;
-    margin-bottom: 2px;
-}
-
-.pill-slider {
-    background-color: alpha(@custom-grey-dark, 0.3);
-    border-radius: 8px; /* More rectangular pill */
-    padding: 6px 12px;
-    min-height: 36px;
-    margin-bottom: 8px;
-}
-
-.pill-slider image {
-    font-size: 1.1em;
-}
+.sliders-box { background: none; margin: 12px 4px; }
+.sliders-box > label { font-size: 0.8em; font-weight: bold; opacity: 0.7; margin-bottom: 2px; }
+.pill-slider { background-color: alpha(@custom-grey-dark, 0.3); border-radius: 8px; padding: 6px 12px; min-height: 36px; margin-bottom: 8px; }
+.pill-slider image { font-size: 1.1em; }
+scale slider { background: alpha(@accent, 1.0); border: none; }
+scale trough { background-color: alpha(@accent, 0.2); border-radius: 4px; min-height: 8px; border: none; }
+scale trough highlight { background-color: alpha(@accent, 0.9); border-radius: 4px; }
 
 /* --- Expansion Content --- */
-.expandable-content-area {
-    /* Use the theme's background color so it matches light/dark modes */
-    background-color: @theme_bg_color;
-    /* Ensure the corners are rounded to match the rest of the UI */
-    border-radius: 12px;
-    /* Give the list items inside some breathing room */
-    padding: 8px;
-    box-shadow: none;
-}
-
-.list-item-button {
-    padding: 12px;
-    border-radius: 8px;
-    background: none;
-    border: none;
-}
-
-.list-item-button:hover {
-    background-color: alpha(@white, 0.08);
-}
+.expandable-content-area { background-color: @theme_bg_color; border-radius: 12px; padding: 8px; box-shadow: none; }
+.list-item-button { padding: 12px; border-radius: 8px; background: none; border: none; }
+.list-item-button:hover { background-color: alpha(@white, 0.08); }
 
 /* --- Bottom Bar --- */
-.settings-button {
-    background: none;
-    border: none;
-    font-size: 1.4em;
-    padding: 8px;
-    border-radius: 99px;
-}
+.settings-button { background: none; border: none; font-size: 1.4em; padding: 8px; border-radius: 99px; }
+.settings-button:hover { background-color: alpha(@white, 0.1); }
+.password-prompt-overlay { background-color: rgba(0, 0, 0, 0.4); }
 
-.settings-button:hover {
-    background-color: alpha(@white, 0.1);
-}
-
-
-.password-prompt-overlay {
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-/*
- ===================================================================
-              OPTIONAL FINE-TUNING (COMMENTED OUT)
- ===================================================================
-
- The styles below target specific inner parts of GTK widgets.
- You can uncomment them to further customize the look and feel.
-*/
-
-/*
- ---- Slider Fine-Tuning ----
- The 'scale' widget has internal parts you can style.
-*/
-
-scale slider {
-    background:  alpha(@accent, 1.0);
-    border: none;
-}
-
-scale trough {
-    background-color: alpha(@accent, 0.2);
-    border-radius: 4px;
-    min-height: 8px;
-    border: none;
-}
-
-scale trough highlight {
-    background-color: alpha(@accent, 0.9);
-    border-radius: 4px;
-}
-
-
-
-/*
- ---- Spinner (Loading Indicator) ----
- This styles the loading animation that appears over the lists.
-*/
-/*
-spinner {
-    // Change the color of the loading spinner
-    color: #3584e4;
-    -gtk-icon-source: -gtk-icontheme("process-working-symbolic");
-}
-*/
-
-
-/*
- ---- Scrollbar Customization ----
- This styles the scrollbar that appears in the lists if they overflow.
-*/
-/*
-scrollbar {
-    // Make the scrollbar itself thinner
-    min-width: 6px;
-    min-height: 6px;
-    background-color: transparent;
-}
-
-scrollbar slider {
-    // Style the handle of the scrollbar
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-}
-
-scrollbar slider:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-scrollbar button {
-    // Hide the up/down arrow buttons on the scrollbar
-    min-width: 0;
-    min-height: 0;
-}
-*/
-
-
-/* Add this to the end of your existing src/style.css */
-
-.fade-in-slide-up {
-    animation: fade-in-slide-up 0.3s ease-out forwards;
-}
-
-@keyframes fade-in-slide-up {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+.fade-in-slide-up { animation: fade-in-slide-up 0.3s ease-out forwards; }
+@keyframes fade-in-slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

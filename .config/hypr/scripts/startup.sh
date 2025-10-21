@@ -34,12 +34,13 @@ pkill -f 'archbadge.py'
 # A. UI ELEMENTS & USER APPLICATIONS (LAUNCH FIRST FOR IMMEDIATE VISUALS)
 # --------------------------------------------------------------------------------------
 echo "--- Launching UI elements and user applications ---"
-ironbar &
+# ironbar &
+aurora-shell &
 nm-applet --indicator &
 blueman-applet &
-python ~/.config/hypr/python/fetchapp/archbadge.py &
+# python ~/.config/hypr/python/fetchapp/archbadge.py &
 systemctl --user restart mpris-watcher.service &
-vicinae server & 
+# vicinae server & 
 
 # --------------------------------------------------------------------------------------
 # B. ENVIRONMENT & SYSTEM SERVICES

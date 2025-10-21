@@ -4,6 +4,7 @@
 @define-color accent     %%ACCENT%%;
 @define-color surface    %%SURFACE%%;
 @define-color warning    %%WARNING%%;
+@define-color destructive #fb4934; /* Destructive color was missing from template */
 
 /* ======================================= */
 /* ---        Main Widget Theme        --- */
@@ -12,14 +13,44 @@ window {
   background: transparent;
 }
 
+/* --- Launch Animation Logic --- */
+
+/* 1. This defines the initial "pill" state of your main container. */
 #main-container {
-    background-color: alpha(@background, 0.3)
-    ; /* Using your defined background */
-    color: @foreground;                       /* Using your defined text color */
-    border-radius: 12px;
-    border: 2px solid alpha(@accent, 0.8);    /* Using your defined accent color */
-    padding: 10px;
+    background-color: alpha(@background, 0.3); /* Adjusted alpha for better visibility */
+    color: @foreground;
+    border: 2px solid alpha(@accent, 0.8);
+
+    /* The animation engine: Bounces any property that changes. */
+    transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Pill geometry */
+    border-radius: 24px; /* More rounded for the pill look */
+    min-width: 150px;
+    min-height: 48px;
+    padding: 0 16px; /* No vertical padding initially */
 }
+
+/* 2. This defines the final, expanded state after the animation. */
+#main-container.expanded {
+    /* Restore your original geometry */
+    border-radius: 12px;
+    padding: 10px;
+
+    /* Define a target size for the animation */
+    /* The final size will be determined by the content, but this guides the animation */
+    min-width: 700px;
+    min-height: 400px;
+}
+
+/* 3. This styles the "Schedule" text inside the initial pill. */
+.pill-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: @foreground;
+}
+/* --- End of Animation Logic --- */
+
 
 grid {
     margin: 10px;
