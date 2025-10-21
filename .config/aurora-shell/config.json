@@ -1,0 +1,115 @@
+[
+  {
+    "name": "topbar",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/topbar.so",
+    "stylesheet": "topbar.css",
+    "layer": "top",
+    "anchor": "top",
+    "exclusive": true,
+    "visible_on_start": true,
+    "interactive": true,
+    "margins": {
+      "top": 5,
+      "bottom": 0,
+      "left": 5,
+      "right": 5
+    },
+    "config": {
+      "modules": {
+        "left": [ { "name": "workspaces" } ],
+        "center": [ { "name": "clock", "on-click": "aurora-shell --toggle calendar" } ],
+        "right": [
+          { "name": "sysinfo", "on-click": "aurora-shell --toggle control-center" },
+          { "name": "audio" },
+          { "name": "zen", "on-click-right": "swaync-client --toggle-panel" }
+        ]
+      }
+    }
+  },
+  {
+    "name": "uptime",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/uptime.so",
+    "stylesheet": "archbadge.css",
+    "anchor": "bottom-center",
+    "layer": "bottom",
+    "margin": { "bottom": 5 },
+    "text": "{distro}  ·  Uptime: {uptime}",
+    "visible_on_start": true
+  },
+  {
+    "name": "cheatsheet",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/cheatsheet.so",
+    "stylesheet": "cheatsheet.css",
+    "anchor": "center",
+    "layer": "top",
+    "visible_on_start": false,
+    "interactive": true
+  },
+  {
+    "name": "calendar",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/calendar.so",
+    "stylesheet": "calendar.css",
+    "anchor": "top-center",
+    "layer": "top",
+    "visible_on_start": false,
+    "margin": { "top": 5 },
+    "animation": {
+      "property": "margin-top",
+      "from": -600,
+      "to": 15,
+      "duration": 500
+    },
+    "interactive": false
+  },
+  {
+    "name": "control-center",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/control-center.so",
+    "stylesheet": "controlcenter.css",
+    "anchor": "top-center",
+    "layer": "overlay",
+    "margin": { "top": 5 },
+    "visible_on_start": false,
+    "size": {
+      "width": 600,
+      "height": 200
+    },
+    "interactive": false
+  },
+  {
+    "name": "mpris-player",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/mpris_player.so",
+    "stylesheet": "mpris-player.css",
+    "anchor": "center-left",
+    "layer": "top",
+    "margin": { "left": 5 },
+    "visible_on_start": false,
+    "size": {
+      "width": 275,
+      "height": 450
+    },
+    "interactive": true
+  },
+  {
+    "name": "launcher",
+    "plugin": "/usr/local/lib/aurora-shell/widgets/launcher.so",
+    "stylesheet": "launcher.css",
+    "layer": "overlay",
+    "anchor": "center",
+    "visible_on_start": false,
+    "interactive": true
+  },
+  {
+    "name": "cachy-selector",
+    "visible_on_start": false,
+    "config": {
+      "stylesheet": "cachy-selector.css",
+      "size": {
+        "width": 800,
+        "height": 210
+      },
+      "margins": {
+        "top": 50
+      }
+    }
+  }
+]

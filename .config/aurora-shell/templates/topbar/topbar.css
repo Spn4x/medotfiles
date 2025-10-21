@@ -1,0 +1,180 @@
+/* --- Wallust Placeholders for Topbar --- */
+@define-color custom-primary #CDEBD6;      /* Main text */
+@define-color custom-secondary #AFDABC;         /* Sub-text (often lighter grey) */
+@define-color custom-background #16171A;    /* Main bar background */
+@define-color custom-surface #3D3E42;         /* Module background */
+@define-color custom-accent #46A44D;        /* Primary accent */
+@define-color gnome-bg #28282C;
+@define-color gnome-highlight #3E3E41;
+/* Note: 'custom-border' and 'custom-highlight' were defined but not used. */
+/* Note: 'battery-*', 'backlight-*', 'bluetooth-color' were defined but not used. */
+
+/* --- Main Bar Container --- */
+.aurora-topbar-widget {
+    font-family: "JetBrainsMono Nerd Font", "Noto Sans Nerd Font", sans-serif;
+    font-size: 10.5pt;
+    font-weight: normal;
+    color: @custom-primary;
+    border-radius: 0px;
+    box-shadow: none;
+    text-shadow: none;
+     background-color: @gnome-bg;
+    border: 2px solid alpha(@accent, 0.2);
+    padding: 2px 5px;
+    border-radius: 12px;
+    
+}
+
+/* --- Group Spacing --- */
+.aurora-topbar-widget .group-start {
+    margin-left: 5px;
+}
+
+/* --- Workspaces Module Styling --- */
+.aurora-topbar-widget .workspace-module {
+    background: none;
+    padding: 0;
+    margin-left: 2px;
+    margin-right: 6px;
+}
+
+.aurora-topbar-widget .workspace-module .workspace-button {
+   
+   background: @gnome-highlight;
+    padding: 4px 9px;
+    margin: 1px 2px;
+    border-radius: 8px;
+    font-size: 10.5pt;
+    font-weight: bold;
+}
+
+.aurora-topbar-widget .workspace-module .workspace-button.active-ws {
+    background-color: alpha(@custom-accent, 0.85);
+    box-shadow: none;
+}
+
+/* --- Clock & Generic "Pill" Modules --- */
+.aurora-topbar-widget .clock-module,
+.aurora-topbar-widget .sysinfo-module,
+.aurora-topbar-widget .audio-module,
+.aurora-topbar-widget .zen-module {
+    padding: 3px 7px;
+    margin: 0px;
+    border-radius: 8px;
+    background: @gnome-highlight;
+    font-weight: normal;
+    min-width: 40px;
+}
+
+.aurora-topbar-widget .clock-module {
+    margin-right: 8px;
+}
+.aurora-topbar-widget .clock-module:hover,
+.aurora-topbar-widget .sysinfo-module:hover,
+.aurora-topbar-widget .audio-module:hover,
+.aurora-topbar-widget .zen-module:hover,
+.aurora-topbar-widget .workspace-module .workspace-button:hover {
+    background-color: @accent;
+}
+
+.aurora-topbar-widget .clock-module:active,
+.aurora-topbar-widget .sysinfo-module:active,
+.aurora-topbar-widget .audio-module:active,
+.aurora-topbar-widget .zen-module:checked,
+.aurora-topbar-widget .workspace-module .workspace-button:checked {
+    background-color: @accent;
+}
+
+/* --- Sysinfo Module Internals --- */
+.aurora-topbar-widget .sysinfo-module .content-box,
+.aurora-topbar-widget .sysinfo-module .glyph-label,
+.aurora-topbar-widget .sysinfo-module label {
+    background: none;
+}
+.aurora-topbar-widget .sysinfo-module .glyph-label { 
+    font-size: 1.1em; 
+    margin-right: 0; 
+    opacity: 0.8; 
+}
+
+.aurora-topbar-widget .sysinfo-module label { 
+    margin-right: 5px; 
+}
+
+/* --- Audio Module Internals --- */
+.aurora-topbar-widget .audio-module .glyph-label {
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+/* =======================================================================
+    Audio Module Popover
+   ======================================================================= */
+
+.aurora-topbar-widget .audio-module popover {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.aurora-topbar-widget .audio-module popover > contents {
+    background-color: alpha(@custom-surface, 0.6);
+    border: 2px solid alpha(@custom-accent, 0.7);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 250px;
+}
+
+.aurora-topbar-widget .audio-module popover arrow {
+    min-width: 24px;
+    min-height: 12px;
+    border-color: transparent;
+    background: none;
+}
+.aurora-topbar-widget .audio-module popover.top arrow {
+    border-bottom: 12px solid alpha(@custom-accent, 0.7);
+}
+.aurora-topbar-widget .audio-module popover.bottom arrow {
+    border-top: 12px solid alpha(@custom-accent, 0.7);
+}
+
+/* --- Content INSIDE the popover --- */
+.sink-list-popover .sink-button {
+    background-color: transparent;
+    color: @custom-primary; /* FIXED */
+    border: none;
+    box-shadow: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: bold;
+}
+.sink-list-popover .sink-button:hover {
+    background-color: alpha(@custom-accent, 0.5); /* FIXED */
+}
+.sink-list-popover .sink-button.active-sink {
+    background-color: @custom-accent;
+    color: @custom-background; /* FIXED */
+}
+
+.sink-list-popover .glyph-label {
+    font-size: 1.1em;
+    margin-right: 8px;
+    opacity: 0.8;
+}
+
+.sink-list-popover .sink-button,
+.sink-list-popover .sink-button box,
+.sink-list-popover .sink-button label {
+    background: none;
+}
+
+/* --- Zen (DND) Module --- */
+.aurora-topbar-widget .zen-module .zen-active {
+    background-color: @custom-accent; /* FIXED */
+    color: @custom-background; /* FIXED */
+}
+
+.aurora-topbar-widget .zen-module .glyph-label {
+    font-size: 1.1em;
+}

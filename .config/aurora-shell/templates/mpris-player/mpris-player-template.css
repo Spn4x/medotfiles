@@ -1,0 +1,99 @@
+/*
+================================================================================
+  Aurora Shell - MPRIS Player Theme
+================================================================================
+*/
+
+/* --- Color Palette & Font (Placeholders) --- */
+@define-color background %%BACKGROUND%%;
+@define-color foreground %%FOREGROUND%%;
+@define-color accent     %%ACCENT%%;
+@define-color surface    %%SURFACE%%;
+@define-color warning    %%WARNING%%;
+
+@define-color-font-main "JetBrainsMono Nerd Font";
+
+@define-color gnome-bg #28282C;
+@define-color gnome-highlight #3E3E41;
+
+/* --- Main Widget Container --- */
+.mpris-player-widget {
+    font-family: @define-color-font-main, monospace;
+    background-color: @gnome-bg;
+    color: @foreground;
+    border: 2px solid alpha(@accent, 0.2);
+    border-radius: 14px;
+    box-shadow: none;
+}
+
+/* --- Player Info & Album Art --- */
+.mpris-player-widget .album-art {
+  border-radius: 8px;
+  
+}
+.mpris-player-widget .title-label {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: @white;
+  
+}
+.mpris-player-widget .artist-label {
+  font-size: 1em;
+  color: @foreground;
+ 
+}
+/* --- Media Control Buttons --- */
+.mpris-player-widget .linked button {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: #e0e0e0;
+  transition: all 0.2s ease-in-out;
+  padding: 8px;
+  border-radius: 99px; /* Make them circular */
+}
+.mpris-player-widget .linked button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: @white;
+}
+.mpris-player-widget .linked button:active {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Lyrics View --- */
+.mpris-player-widget .lyrics-scrolled-window {
+  background-color: rgba(20, 22, 25, 0.85);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 10px;
+}
+.mpris-player-widget .lyrics-box {
+  margin: 20px;
+}
+.mpris-player-widget .lyrics-label {
+  color: #999;
+  font-size: 1.2em;
+  font-weight: bold;
+  opacity: 0.7;
+  transition: all 0.3s ease-in-out;
+}
+.mpris-player-widget .lyrics-label.active-lyric {
+  color: #FFF;
+  font-size: 1.4em;
+  opacity: 1.0;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+.mpris-player-widget .offset-label {
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* --- Toast Notification --- */
+.mpris-player-widget .toast-label {
+  background-color: @surface;
+  color: @foreground;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border: 1px solid @accent;
+  box-shadow: none;
+}

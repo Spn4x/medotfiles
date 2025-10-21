@@ -1,0 +1,297 @@
+/* --- Color Palette Definition --- */
+@define-color background %%BACKGROUND%%;
+@define-color foreground %%FOREGROUND%%;
+@define-color accent     %%ACCENT%%;
+@define-color surface    %%SURFACE%%;
+@define-color warning    %%WARNING%%;
+
+@define-color gnome-bg #28282C;
+@define-color gnome-highlight #3E3E41;
+
+
+
+/* ======================================= */
+/* ---        Main Widget Theme        --- */
+/* ======================================= */
+
+/* THE FIX: Make the actual GtkWindow a transparent ghost container */
+window {
+  background: transparent;
+}
+
+#calendar-widget {
+    font-family: @define-color-font-main, monospace;
+    background-color: @gnome-bg; /* A nice, semi-solid background */
+    color: @foreground;
+    border: 2px solid alpha(@accent, 0.2);
+    border-radius: 14px;
+    padding: 12px;
+    min-width: 550px;
+}
+
+
+/* --- Main Widget Theme --- */
+.aurora-widget {
+    background-color: alpha(@background, 0.3);
+    border: 2px solid alpha(@accent, 0.8);
+    font-family: "Cantarell", sans-serif;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+
+
+/* Style for the "Calendar" text inside the initial pill */
+.pill-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: @foreground;
+}
+
+/* --- Header & Navigation --- */
+.header-box {
+    padding: 10px 15px;
+}
+.month-button {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 8px;
+}
+.month-button button {
+    background: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+.month-button:hover {
+    background-color: alpha(@foreground, 0.05);
+    box-shadow: none;
+}
+.month-label {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: @foreground;
+}
+.nav-button {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 0px 8px;
+    padding-bottom: 4px;
+    color: alpha(@foreground, 0.7);
+    font-size: 1.4em;
+}
+.nav-button:hover {
+    background-color: alpha(@foreground, 0.1);
+    color: @foreground;
+}
+
+/* --- Calendar Grid --- */
+.calendar-grid {
+    padding: 0 15px 15px 15px;
+}
+.weekday-label {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: alpha(@foreground, 0.5);
+    margin-bottom: 10px;
+}
+.day-button {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: @foreground;
+    box-shadow: none;
+    font-weight: bold;
+    min-height: 38px;
+    min-width: 38px;
+    margin: 1px;
+    transition: all 0.2s ease-in-out;
+}
+.day-button:not(.has-event):hover {
+    background-color: alpha(@foreground, 0.1);
+}
+.day-button.today {
+    background-image: none;
+    background-color: @accent;
+    color: @background;
+}
+.day-button.has-event {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='5' height='5'%3E%3Ccircle cx='2.5' cy='2.5' r='2.5' fill='%2370704C'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center 90%;
+    background-size: 5px 5px;
+}
+
+/* --- Popovers --- */
+popover {
+    background: none;
+    border: none;
+    padding: 0;
+}
+.event-popover > contents {
+    background-color: alpha(@background, 0.9);
+    border: 2px solid alpha(@accent, 0.8);
+    border-radius: 12px;
+    padding: 10px;
+}
+.event-popover arrow {
+    min-width: 24px;
+    min-height: 12px;
+    border-color: transparent;
+    background: none;
+}
+.event-popover.top arrow {
+    border-bottom: 12px solid alpha(@accent, 0.8);
+}
+.event-popover.bottom arrow {
+    border-top: 12px solid alpha(@accent, 0.8);
+}
+
+/* --- Popover Form Widgets --- */
+.event-popover entry {
+    background-color: alpha(@surface, 0.5);
+    border: 1px solid alpha(@surface, 0.8);
+    border-radius: 6px;
+    color: @foreground;
+    caret-color: @accent;
+    padding: 4px 6px;
+}
+.event-popover entry:focus {
+    border-color: @accent;
+}
+.event-popover checkbutton {
+    color: @foreground;
+}
+.event-popover checkbutton:hover {
+    background-color: alpha(@foreground, 0.05);
+    border-radius: 6px;
+}
+.event-popover checkbutton check {
+    background-color: alpha(@surface, 0.5);
+    border: 1px solid @surface;
+    border-radius: 4px;
+}
+.event-popover checkbutton:checked check {
+    background-color: @accent;
+    border-color: @accent;
+}
+.event-popover .dropdown {
+    background-color: alpha(@surface, 0.5);
+    border: 1px solid alpha(@surface, 0.8);
+    border-radius: 6px;
+}
+.event-popover .dropdown:hover {
+    background-color: alpha(@surface, 1.2);
+}
+.event-popover .dropdown label {
+    color: @foreground;
+}
+.event-popover box > button.button {
+    background-color: @accent;
+    color: @background;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    padding: 6px;
+}
+.event-popover box > button.button:hover {
+    background-color: alpha(@accent, 1.2);
+}
+
+/* --- Event List Rows (Inside Popovers) --- */
+.event-entry {
+    margin: 4px 0;
+}
+.event-time {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: @accent;
+    margin-right: 10px;
+}
+.event-title {
+    color: @foreground;
+}
+
+/* --- Upcoming Events Panel --- */
+.upcoming-panel {
+    min-width: 350px;
+}
+.upcoming-list {
+    background-color: transparent;
+}
+.upcoming-row {
+    background-color: transparent;
+    border-radius: 8px;
+    margin: 4px 8px;
+    padding: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+.upcoming-row:hover {
+    border-color: alpha(@foreground, 0.1);
+    background-color: alpha(@foreground, 0.05);
+}
+.upcoming-date-box {
+    background-color: alpha(@foreground, 0.07);
+    border-radius: 6px;
+    padding: 5px 10px;
+    margin-right: 12px;
+}
+.upcoming-date-day {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: @foreground;
+}
+.upcoming-date-month {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: alpha(@foreground, 0.6);
+}
+.upcoming-event-title {
+    font-weight: bold;
+    color: @foreground;
+    margin-bottom: 2px;
+}
+.upcoming-event-time {
+    font-size: 0.9em;
+    color: alpha(@foreground, 0.7);
+}
+
+@keyframes day-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.day-button.fade-in {
+  animation: day-fade-in 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* --- Delete Button --- */
+.delete-button {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 2px;
+  margin-left: 10px;
+}
+.delete-button:hover {
+  background-color: alpha(@destructive, 0.2);
+}
+.delete-button image {
+  font-size: 1em; /* Correct way to size icons */
+  color: alpha(@foreground, 0.6);
+}
+.delete-button:hover image {
+  color: @destructive;
+}
+
+/* --- Permanent Event Icon --- */
+.permanent-event-icon {
+  margin-right: 6px;
+  font-size: 0.9em; /* Correct way to size icons */
+  color: @accent;
+}

@@ -1,0 +1,141 @@
+/*
+================================================================================
+  Color & Font Definitions
+================================================================================
+*/
+
+/* --- Color Palette & Font (Placeholders from Theme) --- */
+@define-color background %%BACKGROUND%%;
+@define-color foreground %%FOREGROUND%%;
+@define-color accent     %%ACCENT%%;
+@define-color surface    %%SURFACE%%;
+@define-color warning    %%WARNING%%;
+@define-color-font-main "JetBrainsMono Nerd Font";
+
+/* --- Custom Colors Derived from RGBA Values --- */
+@define-color white #FFFFFF;
+@define-color black #000000;
+@define-color custom-grey-dark #363636; /* Original: rgb(54, 54, 54) */
+@define-color custom-grey-medium #808080; /* Original: rgb(128, 128, 128) */
+@define-color lyrics-bg #141619; /* Original: rgb(20, 22, 25) */
+
+@define-color gnome-bg #28282C;
+@define-color gnome-highlight #3E3E41;
+/* ==============================================================================
+   ---      NEW: Launch Animation & Main Container Styling (Converted)      ---
+   ============================================================================== */
+
+/* Keyframes definition remains global, which is correct */
+@keyframes cinematic-bounce-controls {
+  0% {
+    min-width: 150px;
+    min-height: 48px;
+    border-radius: 24px;
+    padding: 0;
+  }
+  70% {
+    min-width: 630px; /* Overshoot */
+    min-height: 200px; /* Overshoot */
+    border-radius: 12px;
+    padding: 14px; /* Overshoot */
+  }
+  100% {
+    min-width: 600px; /* Final size */
+    border-radius: 16px; /* Final radius */
+    padding: 12px; /* Final padding */
+  }
+}
+
+/* CONVERTED: The main container now uses the .control-center-widget class */
+.control-center-widget {
+    background-color: @gnome-bg;
+    border: 2px solid alpha(@accent, 0.2);
+    transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1); /* Fallback for shrinking */
+    
+    /* Initial Pill State */
+    border-radius: 15px;
+    min-width: 150px;
+    min-height: 48px;
+    padding: 12px;
+}
+
+/* CONVERTED: The expanded state is also applied to the class */
+.control-center-widget.expanded {
+    animation: cinematic-bounce-controls 600ms forwards;
+    /* Explicitly set final state to match keyframes */
+    min-width: 600px;
+    border-radius: 16px;
+    padding: 12px;
+}
+
+/* CONVERTED: All internal styles are now prefixed with .control-center-widget */
+.control-center-widget .pill-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: @foreground;
+}
+
+/* ==============================================================================
+   ---          Internal Component Styling (Converted & Scoped)             ---
+   ============================================================================== */
+
+.control-center-widget .main-popup {
+    border-radius: 16px;
+    padding: 0; /* Padding is handled by the animated container now */
+}
+
+/* --- Top Toggle Grid --- */
+.control-center-widget .square-toggle {
+    background: @gnome-highlight;
+    border: none;
+    border-radius: 10px;
+    min-width: 120px;
+    min-height: 60px;
+    transition: background-color 0.2s ease-in-out;
+}
+.control-center-widget .square-toggle:hover { 
+  background-color: alpha(@accent, 1); 
+}
+.control-center-widget .square-toggle:checked,
+.control-center-widget .square-toggle:checked label { 
+  color: white; 
+  background-color: alpha(@accent, 1); 
+}
+.control-center-widget .square-toggle image { 
+  font-size: 2em; margin-bottom: 4px; 
+}
+.control-center-widget .square-toggle label { 
+  font-size: 0.9em; 
+  font-weight: bold; 
+}
+
+/* --- Sliders Box --- */
+.control-center-widget .sliders-box { background: none; margin: 12px 4px; }
+.control-center-widget .sliders-box > label { font-size: 0.8em; font-weight: bold; opacity: 0.7; margin-bottom: 2px; }
+.control-center-widget .pill-slider { background-color: @gnome-highlight; border-radius: 8px; padding: 6px 12px; min-height: 36px; margin-bottom: 8px; }
+.control-center-widget .pill-slider image { font-size: 1.1em; }
+/* This is a CRITICAL fix: Scoping the generic 'scale' and 'trough' types */
+.control-center-widget scale slider { background: alpha(@accent, 1.0); border: none; }
+.control-center-widget scale trough { background-color: alpha(@accent, 0.2); border-radius: 4px; min-height: 8px; border: none; }
+.control-center-widget scale trough highlight { background-color: alpha(@accent, 0.9); border-radius: 4px; }
+
+/* --- Expansion Content --- */
+.control-center-widget .expandable-content-area { 
+    background-color: alpha(@surface, 0.95);
+    border: 2px solid alpha(@accent, 0.9);
+    border-radius: 12px; 
+    padding: 8px; 
+    box-shadow: none; 
+}
+
+.control-center-widget .list-item-button { padding: 12px; border-radius: 8px; background: none; border: none; }
+.control-center-widget .list-item-button:hover { background-color: alpha(@white, 0.08); }
+
+/* --- Bottom Bar --- */
+.control-center-widget .settings-button { background: none; border: none; font-size: 1.4em; padding: 8px; border-radius: 99px; }
+.control-center-widget .settings-button:hover { background-color: alpha(@white, 0.1); }
+.control-center-widget .password-prompt-overlay { background-color: rgba(0, 0, 0, 0.4); }
+
+/* --- General Animation (Scoped) --- */
+.control-center-widget .fade-in-slide-up { animation: fade-in-slide-up 0.3s ease-out forwards; }
+@keyframes fade-in-slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
